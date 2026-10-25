@@ -152,7 +152,7 @@ class MainActivity : ComponentActivity() {
             }
         } else toast("Actualiza Android System WebView para habilitar las descargas desde el catálogo.")
         web.webViewClient = object : WebViewClient() {
-            override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) { readyTabs.remove(key); if (web === this@MainActivity.web) webReady = false }
+            override fun onPageStarted(view: WebView, url: String, favicon: android.graphics.Bitmap?) { readyTabs.remove(key); if (isActiveBrowser(web)) webReady = false }
             override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
                 if (!request.isForMainFrame) return false
                 val uri = request.url
@@ -167,7 +167,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                if (request.isForMainFrame) { readyTabs.remove(key); if(web === this@MainActivity.web) webReady=false; toast("Sin conexión. Tus capítulos guardados siguen disponibles."); if (prefs.owner > 0 && web === this@MainActivity.web) selectTab("downloads") }
+                if (request.isForMainFrame) { readyTabs.remove(key); if(isActiveBrowser(web)) webReady=false; toast("Sin conexión. Tus capítulos guardados siguen disponibles."); if (prefs.owner > 0 && isActiveBrowser(web)) selectTab("downloads") }
             }
         }
         web.webChromeClient = object : WebChromeClient() {
@@ -186,6 +186,7 @@ class MainActivity : ComponentActivity() {
         if(web.url==null && !(BuildConfig.DEBUG && intent.getBooleanExtra("qa_offline",false)))web.loadUrl(SITE+if(key=="schedule")"#schedule" else "#discover")
         web
     }
+    private fun isActiveBrowser(candidate:WebView)=::web.isInitialized && candidate===web
     private fun rememberNativeScroll() {
         (content.getChildAt(0) as? ScrollView)?.let{nativeScroll[page]=it.scrollY}
     }
@@ -220,6 +221,7 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= 30) window.insetsController?.show(android.view.WindowInsets.Type.systemBars())
     }
     private fun receive(message: JSONObject, source: WebView = web, key: String = activeTab) {
+        if(source!==web && message.optString("type") in setOf("auth","plan"))return
         when (message.optString("type")) {
             "auth" -> {
                 readyTabs.add(key); if(source === web)webReady = true

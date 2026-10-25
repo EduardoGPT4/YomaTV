@@ -5,15 +5,15 @@
     {
       "platform": "android",
       "version": "1.1.0",
-      "bytes": 1894354,
-      "sha256": "1c2cf4e1676d279c476119b055a3926ed85dd657d93ba638bdb152be99b02f31",
+      "bytes": 1894406,
+      "sha256": "c208a8b6bf69ce47c0f5eef9e6e3475185617f6244955e7fc61d1ea25cd58e23",
       "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.0/YomaTV-Android-1.1.0.apk"
     },
     {
       "platform": "windows",
       "version": "2026.10.25.1",
-      "bytes": 69223934,
-      "sha256": "afe2f062e15b419528c51b2880ef06c85e383bf10550971551ab0aae512fcffa",
+      "bytes": 66763756,
+      "sha256": "b21a76b2a14cadf816d75607a8caa70e7233d963c1609e9391e251079e8172e1",
       "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.0/YomaTV-Windows-2026.10.25.1.exe"
     }
   ]
