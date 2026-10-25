@@ -38,8 +38,23 @@ class PresentationTest {
                 assertEquals("more",page)
                 val nav=MainActivity::class.java.getDeclaredField("nav").apply{isAccessible=true}.get(activity)as android.view.ViewGroup
                 assertTrue(nav.getChildAt(3).isSelected)
+                val content=MainActivity::class.java.getDeclaredField("content").apply{isAccessible=true}.get(activity)as android.view.ViewGroup
+                for(route in listOf("library","history","mal","favorites","collections","settings","notifications","native","radio","stats","queue","sync")){
+                    val row=content.findViewWithTag<android.view.ViewGroup>("more-entry-$route")
+                    assertNotNull("Missing menu action: $route",row)
+                    assertTrue(row.getChildAt(0)is NavGlyph)
+                    assertTrue(row.getChildAt(2)is NavGlyph)
+                    assertTrue(row.height>=activity.dp(44))
+                    assertEquals(row.contentDescription.toString(),(row.getChildAt(1)as android.widget.TextView).text.toString())
+                }
             }
             capture("more")
+            scenario.onActivity{activity->
+                val content=MainActivity::class.java.getDeclaredField("content").apply{isAccessible=true}.get(activity)as android.view.ViewGroup
+                val scroll=content.getChildAt(0)as android.widget.ScrollView
+                scroll.scrollTo(0,scroll.getChildAt(0).height)
+            }
+            capture("more-bottom")
         }
     }
 }

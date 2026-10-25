@@ -1,20 +1,20 @@
 {
   "repository": "EduardoGPT4/YomaTV",
-  "tag": "v1.1.1",
+  "tag": "v1.1.2",
   "apps": [
     {
       "platform": "android",
-      "version": "1.1.1",
-      "bytes": 1894406,
-      "sha256": "1e2eaf594f9ac463ce20ac64ec7bfa018b0d4c166edf9a10a12818e5dc8b3415",
-      "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.1/YomaTV-Android-1.1.1.apk"
+      "version": "1.1.2",
+      "bytes": 1895862,
+      "sha256": "65068f210db4872f48927fb73ed68518dd40d482847aca6dac7e051fe5886269",
+      "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.2/YomaTV-Android-1.1.2.apk"
     },
     {
       "platform": "windows",
       "version": "2026.10.25.2",
       "bytes": 63762295,
       "sha256": "d409ae99907321f7c86936b707d346cc6051e9a87b09286ba4c00e5a733a1be2",
-      "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.1/YomaTV-Windows-2026.10.25.2.exe"
+      "url": "https://github.com/EduardoGPT4/YomaTV/releases/download/v1.1.2/YomaTV-Windows-2026.10.25.2.exe"
     }
   ]
 }

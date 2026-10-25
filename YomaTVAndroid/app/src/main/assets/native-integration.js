@@ -6,7 +6,14 @@
   let previousAuth = '', previousRoute = '', timer;
   if(document.head){
     const style=document.createElement('style');style.id='season-android-navigation';
-    style.textContent='.mobile-navigation{display:none!important}.footer{padding-bottom:24px!important}';
+    // Older shared styles use a flex row here; long server actions must fit phones.
+    style.textContent=`.mobile-navigation{display:none!important}.footer{padding-bottom:24px!important}
+      .yoma-native .watch-servers{display:grid;grid-template-columns:minmax(0,1fr);min-width:0;width:100%;box-sizing:border-box}
+      .yoma-native .watch-servers>div{min-width:0;width:auto;max-width:100%;flex-wrap:wrap}
+      .yoma-native .watch-servers .watch-server-notice{display:flex;flex-wrap:wrap;min-width:0;width:100%;margin:0}
+      .yoma-native .watch-servers .watch-server-notice .button{min-width:0;max-width:100%;white-space:normal;flex:1;justify-content:center}
+      .yoma-native .watch-servers .watch-external{justify-self:start;min-height:44px;display:inline-flex;align-items:center}
+      .yoma-native .watch-servers .watch-server-notice p{width:100%;overflow-wrap:anywhere}`;
     document.head.append(style);
   }
   let suspended = false, nativeRendered=false;

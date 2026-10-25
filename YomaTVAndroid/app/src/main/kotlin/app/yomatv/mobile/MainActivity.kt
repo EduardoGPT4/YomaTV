@@ -333,15 +333,23 @@ class MainActivity : ComponentActivity() {
         profile.addView(button(if(prefs.owner>0)"Ver mi cuenta  →" else "Iniciar sesión  →",false){openWebAccount()})
         fun section(title:String, entries:List<Triple<String,String,String>>) {
             layout.addView(label(title,13,MUTED));val box=card(layout)
-            entries.forEachIndexed{index,(glyph,label,route)->box.addView(button("$glyph   $label   ›",false){
-                when(route){"native"->show("settings");"more"->moreMenu();else->webRoute(route)}
-            }.apply{background=android.graphics.drawable.ColorDrawable(SURFACE);gravity=android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL},LinearLayout.LayoutParams(-1,dp(54)))
+            entries.forEachIndexed{index,(glyph,entryLabel,route)->
+                val row=LinearLayout(this).apply{
+                    gravity=android.view.Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(8),0)
+                    tag="more-entry-$route";contentDescription=entryLabel;isFocusable=true;isClickable=true
+                    background=android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x22ff6a55),android.graphics.drawable.ColorDrawable(SURFACE),null)
+                    setOnClickListener{when(route){"native"->show("settings");"more"->moreMenu();else->webRoute(route)}}
+                }
+                row.addView(NavGlyph(this,glyph).apply{importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(dp(25),dp(25)).apply{rightMargin=dp(14)})
+                row.addView(label(entryLabel,16,PAPER).apply{setPadding(0,0,0,0);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(0,-2,1f))
+                row.addView(NavGlyph(this,"chevron").apply{tint=MUTED;importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(dp(18),dp(18)).apply{leftMargin=dp(8)})
+                box.addView(row,LinearLayout.LayoutParams(-1,dp(56)))
                 if(index<entries.lastIndex)box.addView(View(this).apply{setBackgroundColor(0xff393449.toInt())},LinearLayout.LayoutParams(-1,dp(1)))
             }
         }
-        section("TU BIBLIOTECA",listOf(Triple("♡","Mi biblioteca","library"),Triple("◷","Historial","history"),Triple("MAL","MyAnimeList${if(malConnected)" · Conectado" else ""}","mal"),Triple("☆","Favoritos","favorites"),Triple("▤","Colecciones","collections")))
-        section("PREFERENCIAS",listOf(Triple("◐","Apariencia y reproducción","settings"),Triple("♧","Notificaciones","notifications"),Triple("↓","Almacenamiento y descargas","native")))
-        section("EXPLORA MÁS",listOf(Triple("♫","Radio anime","radio"),Triple("▥","Estadísticas","stats"),Triple("↔","Cola para la PC","queue"),Triple("✓","Sincronización MAL","sync")))
+        section("TU BIBLIOTECA",listOf(Triple("library","Mi biblioteca","library"),Triple("history","Historial","history"),Triple("mal","MyAnimeList${if(malConnected)" · Conectado" else ""}","mal"),Triple("favorites","Favoritos","favorites"),Triple("collections","Colecciones","collections")))
+        section("PREFERENCIAS",listOf(Triple("appearance","Apariencia y reproducción","settings"),Triple("notifications","Notificaciones","notifications"),Triple("storage","Almacenamiento y descargas","native")))
+        section("EXPLORA MÁS",listOf(Triple("radio","Radio anime","radio"),Triple("stats","Estadísticas","stats"),Triple("queue","Cola para la PC","queue"),Triple("sync","Sincronización MAL","sync")))
         layout.addView(label("YomaTV Android · ${BuildConfig.VERSION_NAME}",14,MUTED))
         restoreNativeScroll("more")
     }
