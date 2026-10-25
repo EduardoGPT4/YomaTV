@@ -1,6 +1,6 @@
 # YomaTV Web
 
-**Estado del fuente:** YomaTV publicada el 25 de octubre de 2026, versión web `yomatv-20261025-1`. [Identidad, aplicaciones y publicación automática](YOMATV-2026-10-25.md).
+**Estado del fuente:** YomaTV publicada el 25 de octubre de 2026, versión web `yomatv-20261025-2`. [Identidad, aplicaciones y publicación automática](YOMATV-2026-10-25.md).
 
 Aplicación PHP + MySQL publicada en **https://hk-br035.gt.tc/seasonav1/**. La portada es el catálogo completo: **4.485 títulos** obtenidos del HTML público de AnimeAV1, sin su API oficial. **Temporada** conserva el horario de 64 animes como sección secundaria. Los capítulos de cada anime se consultan al abrir su ficha. La página anterior del dominio se conserva.
 
