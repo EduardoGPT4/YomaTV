@@ -1,6 +1,12 @@
 name: Build and publish YomaTV apps
 on:
   workflow_dispatch:
+    inputs:
+      verify_only:
+        description: Compile and test without replacing a published release
+        required: false
+        type: boolean
+        default: false
   push:
     tags: ['v*']
 permissions:
@@ -47,6 +53,7 @@ jobs:
           if('${{ github.ref_type }}' -eq 'tag' -and '${{ github.ref_name }}' -ne $metadata.tag){throw 'Tag does not match Android version'}
           'tag='+$metadata.tag >> $env:GITHUB_OUTPUT
       - name: Publish installers and metadata
+        if: ${{ !inputs.verify_only }}
         shell: pwsh
         env:
           GH_TOKEN: ${{ github.token }}
@@ -57,8 +64,16 @@ jobs:
           gh release create $env:RELEASE_TAG release-artifacts/* --title "YomaTV $env:RELEASE_TAG" --notes 'Android y Windows. Tamaños y SHA-256 incluidos en yomatv-downloads.json.' --target '${{ github.sha }}' --latest
           if($LASTEXITCODE){throw 'GitHub publication failed'}
       - name: Verify anonymous downloads, size and SHA-256
+        if: ${{ !inputs.verify_only }}
         shell: pwsh
         run: python release-tools/verify_assets.py
+      - name: Retain verified build artifacts
+        if: ${{ inputs.verify_only }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: yomatv-verified-build
+          path: release-artifacts/*
+          retention-days: 3
       - name: Remove temporary signing files
         if: always()
         shell: pwsh
