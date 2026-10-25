@@ -44,6 +44,7 @@ class DownloadTests(unittest.TestCase):
 
     def test_real_download_pause_resume_verify_and_reuse_without_duplicates(self):
         content=self.fixture.read_bytes();ranges=[]
+        release_first_response=threading.Event()
         class Handler(BaseHTTPRequestHandler):
             def do_HEAD(self):
                 self.send_response(200);self.send_header('Content-Type','video/mp4');self.send_header('Content-Length',str(len(content)));self.end_headers()
@@ -57,6 +58,11 @@ class DownloadTests(unittest.TestCase):
                 try:
                     for i in range(start,len(content),8192):
                         self.wfile.write(content[i:i+8192]);self.wfile.flush();time.sleep(0.015)
+                        # Keep the first response incomplete until the real pause.
+                        # A fast CI runner may otherwise finish before yt-dlp's
+                        # next progress line reaches the parent process.
+                        if not value and i < len(content)//2 <= i+8192:
+                            release_first_response.wait(30)
                 except (BrokenPipeError,ConnectionResetError,ConnectionAbortedError):pass
             def log_message(self,*_):pass
         server=ThreadingHTTPServer(('127.0.0.1',0),Handler)
@@ -67,12 +73,23 @@ class DownloadTests(unittest.TestCase):
             def fetch(self,request):return page
         cfg=Config(destination=str(self.folder/'videos'))
         job={'slug':'test','title':'Test','number':'5','url':'https://animeav1.com/media/test/5','language':'SUB','season':'otoño2026'}
-        token=threading.Event()
-        def stop(progress):
-            if progress.downloaded>=524288:token.set()
+        token=threading.Event();partial_observed=threading.Event();monitor_stop=threading.Event()
+        def pause_when_partial_exists():
+            deadline=time.monotonic()+30
+            while time.monotonic()<deadline and not monitor_stop.is_set():
+                for part in (self.folder/'videos').rglob('*.part'):
+                    try:size=part.stat().st_size
+                    except FileNotFoundError:continue
+                    if 0<size<len(content):
+                        partial_observed.set();token.set();return
+                monitor_stop.wait(.01)
+        monitor=threading.Thread(target=pause_when_partial_exists,daemon=True);monitor.start()
         try:
-            with self.assertRaises(Cancelled):download_job(job,cfg,Client(),token,stop)
-            self.assertTrue(list((self.folder/'videos').rglob('*.part')))
+            with self.assertRaises(Cancelled):download_job(job,cfg,Client(),token)
+            self.assertTrue(partial_observed.is_set())
+            parts=list((self.folder/'videos').rglob('*.part'));self.assertTrue(parts)
+            self.assertTrue(any(0<part.stat().st_size<len(content) for part in parts))
+            release_first_response.set()
             token.clear();outcome=download_job(job,cfg,Client(),token)
             self.assertEqual(outcome.path.parent,self.folder/'videos/otoño2026/test')
             self.assertEqual(outcome.verification['height'],180)
@@ -84,6 +101,7 @@ class DownloadTests(unittest.TestCase):
                 again=download_job(job,cfg,Client(),token)
                 self.assertEqual(again.path,outcome.path);worker.assert_not_called();verify.assert_not_called()
         finally:
+            monitor_stop.set();release_first_response.set();monitor.join(timeout=2)
             server.shutdown();server.server_close();thread.join(timeout=3)
 
     def test_speed_limit_is_shared_between_workers(self):
