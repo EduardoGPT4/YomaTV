@@ -1,6 +1,6 @@
 # YomaTV Android
 
-Aplicación Android 8 o posterior. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Conserva la identidad Medianoche y el icono actual. No necesita la aplicación de Windows.
+Aplicación Android 8 o posterior, versión 1.1.0. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
 
 ## Uso
 
@@ -46,7 +46,7 @@ La primera compilación crea un certificado personal en `private/`. Conserva esa
 ./tools/verify_android.ps1 -Device emulator-5580
 ```
 
-El APK QA usa `app.yomatv.mobile.qa`; la distribución usa `app.yomatv.mobile`. Los fixtures, el acceso HTTP local de pruebas y el video sintético no forman parte del APK público.
+El namespace del código es `app.yomatv.mobile`. El ID de instalación QA sigue siendo `app.seasonav1.mobile.qa`; la distribución conserva `app.seasonav1.mobile` y la firma anterior para actualizar sin perder datos. Los fixtures, el acceso HTTP local de pruebas y el video sintético no forman parte del APK público.
 
 ## Pruebas y límites
 

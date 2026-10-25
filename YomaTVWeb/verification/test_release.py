@@ -77,6 +77,16 @@ with tempfile.TemporaryDirectory(dir=ROOT/'verification') as folder:
     try:release.ftp_write(ftp,'application.js',original,allow_lossless_icon=True);raise AssertionError('PNG exception accepted a script')
     except RuntimeError:pass
 checks.append('host_png_reencoding_requires_identical_pixels_and_never_applies_to_scripts')
+with tempfile.TemporaryDirectory(dir=ROOT/'verification') as folder:
+    class Encoded48FTP(LocalFTP):
+        def storbinary(self,command,stream):
+            image=Image.open(stream);output=io.BytesIO();image.save(output,format='PNG',compress_level=9)
+            (self.path/command[5:]).write_bytes(output.getvalue())
+    raw48=io.BytesIO();Image.new('RGBA',(48,48),(45,66,80,200)).save(raw48,format='PNG',compress_level=0)
+    original48=raw48.getvalue();ftp=Encoded48FTP(folder)
+    received48=release.ftp_write(ftp,'icon-48.png',original48,allow_lossless_icon=True)
+    assert original48!=received48 and release.lossless_icon(original48,received48)
+checks.append('favicon_48px_host_reencoding_keeps_exact_pixels')
 expected={'assets/icon-32.png':original,'application.js':b'verified script'}
 ready={'release':'qa-resume-1','files':{name:hashlib.sha256(data).hexdigest() for name,data in expected.items()}}
 expected['private/ready.json']=json.dumps(ready).encode()

@@ -18,6 +18,8 @@ mobile=ROOT/'MOVIL-2026-10-24.md'
 if mobile.is_file():files.append(mobile)
 android=ROOT/'ANDROID-2026-10-24.md'
 if android.is_file():files.append(android)
+yoma=ROOT/'YOMATV-2026-10-25.md'
+if yoma.is_file():files.append(yoma)
 with zipfile.ZipFile(archive,'w',compression=zipfile.ZIP_DEFLATED,compresslevel=9) as output:
     for file in sorted(files):output.write(file,file.relative_to(ROOT).as_posix())
 with zipfile.ZipFile(archive) as output:

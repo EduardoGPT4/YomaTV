@@ -8,4 +8,6 @@ const sample=metadata.apps[0];assert(!ctx.validAppRelease({...sample,url:'https:
 ctx.fixture=metadata.apps;vm.runInContext('appReleasePromise=Promise.resolve();appReleases=fixture',ctx);
 const html=ctx.appDownloadsView();assert(html.includes('Descargar para Android'));assert(html.includes('Descargar para Windows'));for(const app of metadata.apps){assert(html.includes(app.url));assert(html.includes(app.version));assert(html.includes((app.bytes/1000000).toLocaleString('es-MX',{maximumFractionDigits:1})));}
 ctx.yomaNative=()=>true;assert.equal(ctx.appDownloadsView(),'');
+const featureSource=fs.readFileSync(path.join(root,'htdocs/assets/feature-ui.js'),'utf8');
+for(const match of featureSource.matchAll(/href="(downloads\/[^"<>]+)"/g))assert(fs.existsSync(path.join(root,'htdocs',match[1])),`Missing downloadable file: ${match[1]}`);
 console.log(JSON.stringify({ok:true,checks:['published_metadata_has_both_platforms','foreign_repo_rejected','invalid_size_and_version_rejected','actual_version_size_and_url_rendered','native_app_does_not_show_install_prompt']}));

@@ -108,11 +108,11 @@ def finalize_staged_content(expected,read):
     """Re-read every source file and pin final host PNG encodings after other files."""
     ready=json.loads(expected['private/ready.json']);ready.pop('normalization',None)
     content={};normalization={}
-    names=sorted(ready['files'],key=lambda n:(bool(re.fullmatch(r'assets/icon-(32|180|192|512)\.png',n)),n))
+    names=sorted(ready['files'],key=lambda n:(bool(re.fullmatch(r'assets/icon-(32|48|180|192|512)\.png',n)),n))
     for name in names:
         source=expected[name];received=read(name)
         if source!=received:
-            if not re.fullmatch(r'assets/icon-(32|180|192|512)\.png',name) or not lossless_icon(source,received):
+            if not re.fullmatch(r'assets/icon-(32|48|180|192|512)\.png',name) or not lossless_icon(source,received):
                 raise RuntimeError('Staged file differs from requested source: '+name)
             normalization[name]={'source_sha256':hashlib.sha256(source).hexdigest(),'kind':'lossless_png'}
         content[name]=received;ready['files'][name]=hashlib.sha256(received).hexdigest()
@@ -133,7 +133,7 @@ def ftp_write(ftp,path,data,allow_lossless_icon=False):
     ftp.storbinary('STOR '+path,io.BytesIO(data))
     received=ftp_read(ftp,path)
     if received!=data:
-        if not (allow_lossless_icon and re.fullmatch(r'icon-(32|180|192|512)\.png',PurePosixPath(path).name) and lossless_icon(data,received)):
+        if not (allow_lossless_icon and re.fullmatch(r'icon-(32|48|180|192|512)\.png',PurePosixPath(path).name) and lossless_icon(data,received)):
             raise RuntimeError('FTPS verification failed: '+path)
     return received
 
@@ -146,7 +146,7 @@ def verified_content(manifest_bytes,expected,read):
         if hashlib.sha256(data).hexdigest()!=digest:raise RuntimeError('Local published checksum mismatch: '+name)
         if data!=expected[name]:
             normalization=manifest.get('normalization',{}).get(name,{})
-            if normalization.get('source_sha256')!=original['files'][name] or not re.fullmatch(r'assets/icon-(32|180|192|512)\.png',name) or not lossless_icon(expected[name],data):raise RuntimeError('Published file changed beyond lossless icon encoding: '+name)
+            if normalization.get('source_sha256')!=original['files'][name] or not re.fullmatch(r'assets/icon-(32|48|180|192|512)\.png',name) or not lossless_icon(expected[name],data):raise RuntimeError('Published file changed beyond lossless icon encoding: '+name)
         files[name]=data
     files['private/ready.json']=manifest_bytes
     return files,manifest
@@ -243,7 +243,7 @@ def publish(release_id=None,rollback=False,status=False,skip_database_backup=Fal
             completed=0
             for name,data in sorted(content.items()):
                 if name=='private/ready.json':continue
-                icon=bool(re.fullmatch(r'assets/icon-(32|180|192|512)\.png',name))
+                icon=bool(re.fullmatch(r'assets/icon-(32|48|180|192|512)\.png',name))
                 try:existing_file=ftp_read(ftp,f'releases/{identifier}/{name}')
                 except Exception as error:
                     if not str(error).startswith('550'):raise
