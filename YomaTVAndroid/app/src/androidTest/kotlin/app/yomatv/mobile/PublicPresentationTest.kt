@@ -25,13 +25,13 @@ class PublicPresentationTest {
             val deadline=System.currentTimeMillis()+120000;var okay=false
             while(System.currentTimeMillis()<deadline&&!okay){
                 val latch=CountDownLatch(1)
-                scenario.onActivity{a->browser(a).evaluateJavascript("Boolean(document.documentElement.classList.contains('yoma-native')&&document.querySelector('$selector')&&getComputedStyle(document.querySelector('.mobile-navigation')).display==='none')"){value->okay=value=="true";latch.countDown()}}
+                scenario.onActivity{a->browser(a).evaluateJavascript("Boolean(document.documentElement.classList.contains('yoma-native')&&document.querySelector('$selector')&&getComputedStyle(document.querySelector('.mobile-navigation')).display==='none'&&('$selector'!=='.yoma-featured'||document.querySelector('.yoma-featured>img')?.naturalWidth>0))"){value->okay=value=="true";latch.countDown()}}
                 latch.await(3,TimeUnit.SECONDS);if(!okay)Thread.sleep(300)
             }
             assertTrue("Published mobile UI did not load: $selector",okay)
         }
         fun capture(name:String){
-            instrumentation.waitForIdleSync();Thread.sleep(400)
+            instrumentation.waitForIdleSync();Thread.sleep(1500)
             val file=File(context.getExternalFilesDir(null),"verification/yoma-public-$name.png");file.parentFile!!.mkdirs()
             file.outputStream().use{instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG,100,it)}
         }
