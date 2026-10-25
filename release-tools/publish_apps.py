@@ -33,7 +33,7 @@ def main():
     releases=request(base+'/releases?per_page=30',token)
     previous=next((r for r in releases if r['tag_name']==tag),None)
     if previous and not previous['draft']:raise RuntimeError('This version is already public. Bump the version; installers are immutable.')
-    release=previous or request(base+'/releases',token,'POST',{'tag_name':tag,'target_commitish':'main','name':'YomaTV '+tag,'draft':True,'body':'YomaTV Android y Windows. Incluye nueva interfaz móvil, navegación que conserva su estado, nuevo icono y descargas sin Google Drive. Tamaños y SHA-256 en yomatv-downloads.json.'})
+    release=previous or request(base+'/releases',token,'POST',{'tag_name':tag,'target_commitish':os.environ.get('GITHUB_SHA','main'),'name':'YomaTV '+tag,'draft':True,'body':'YomaTV Android y Windows. Incluye nueva interfaz móvil, navegación que conserva su estado, nuevo icono y descargas sin Google Drive. Tamaños y SHA-256 en yomatv-downloads.json.'})
     identifier=release['id'];existing={a['name']:a for a in release['assets']}
     for name in names:
         data=(folder/name).read_bytes();sha='sha256:'+hashlib.sha256(data).hexdigest()

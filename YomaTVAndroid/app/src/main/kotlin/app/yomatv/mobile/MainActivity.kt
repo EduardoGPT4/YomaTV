@@ -333,9 +333,11 @@ class MainActivity : ComponentActivity() {
         profile.addView(button(if(prefs.owner>0)"Ver mi cuenta  →" else "Iniciar sesión  →",false){openWebAccount()})
         fun section(title:String, entries:List<Triple<String,String,String>>) {
             layout.addView(label(title,13,MUTED));val box=card(layout)
-            entries.forEach{(glyph,label,route)->box.addView(button("$glyph   $label   ›",false){
+            entries.forEachIndexed{index,(glyph,label,route)->box.addView(button("$glyph   $label   ›",false){
                 when(route){"native"->show("settings");"more"->moreMenu();else->webRoute(route)}
-            },LinearLayout.LayoutParams(-1,dp(54)))}
+            }.apply{background=android.graphics.drawable.ColorDrawable(SURFACE);gravity=android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL},LinearLayout.LayoutParams(-1,dp(54)))
+                if(index<entries.lastIndex)box.addView(View(this).apply{setBackgroundColor(0xff393449.toInt())},LinearLayout.LayoutParams(-1,dp(1)))
+            }
         }
         section("TU BIBLIOTECA",listOf(Triple("♡","Mi biblioteca","library"),Triple("◷","Historial","history"),Triple("MAL","MyAnimeList${if(malConnected)" · Conectado" else ""}","mal"),Triple("☆","Favoritos","favorites"),Triple("▤","Colecciones","collections")))
         section("PREFERENCIAS",listOf(Triple("◐","Apariencia y reproducción","settings"),Triple("♧","Notificaciones","notifications"),Triple("↓","Almacenamiento y descargas","native")))
@@ -385,10 +387,10 @@ class MainActivity : ComponentActivity() {
         val count = jobs.count { it.state == "done" }
         layout.addView(label("Descargas",36,PAPER,true))
         layout.addView(label("Tus episodios, donde quieras",16,MUTED))
-        val used=jobs.filter{it.state=="done"}.sumOf{it.bytes}
+        val used=jobs.sumOf{it.bytes}
         val free=runCatching{android.os.StatFs((getExternalFilesDir(null)?:filesDir).absolutePath).availableBytes}.getOrDefault(0L)
         val storage=card(layout)
-        storage.addView(label("${formatBytes(used)} utilizados",20,PAPER,true))
+        storage.addView(label("${if(used==0L)"0 MB" else formatBytes(used)} utilizados",20,PAPER,true))
         storage.addView(label("${formatBytes(free)} disponibles · $count capítulos",14,MUTED))
         storage.addView(ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal).apply{
             max=1000;progress=(1000.0*used/(used+free).coerceAtLeast(1)).toInt();progressTintList=android.content.res.ColorStateList.valueOf(ACCENT)

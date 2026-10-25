@@ -291,7 +291,7 @@ class App(tk.Tk):
         window.transient(self);window.resizable(False,False)
         body=ttk.Frame(window,padding=24);body.pack(fill='both',expand=True)
         ttk.Label(body,text='Tu web y tu PC, conectadas',style='Title.TLabel').pack(anchor='w')
-        ttk.Label(body,text='1. Copia el código de este equipo.\n2. En la web pulsa «Conectar YomaTV» y pégalo.\n3. Permite el acceso a la red local si el navegador lo solicita.\n\nDespués, «Preparar» inicia la descarga en la bandeja. Los códigos y las colas de SeasonAV1 siguen funcionando.',wraplength=470).pack(anchor='w',pady=16)
+        ttk.Label(body,text='1. Copia el código de este equipo.\n2. En la web pulsa «Conectar YomaTV» y pégalo.\n3. Permite el acceso a la red local si el navegador lo solicita.\n\nDespués, «Preparar» inicia la descarga en la bandeja. Los códigos y las colas anteriores siguen funcionando.',wraplength=470).pack(anchor='w',pady=16)
         ttk.Entry(body,textvariable=token,state='readonly',show='•',width=50).pack(fill='x')
         feedback=tk.StringVar(value='El código permanece en tu equipo y en ese navegador.')
         def copy():
@@ -334,7 +334,7 @@ class App(tk.Tk):
         if not self.download_tab.busy:self.download_tab.reload_preferences()
 
     def export_web(self):
-        filename=filedialog.asksaveasfilename(title="Guardar resultados para YomaTV Web",initialfile="SeasonAV1-resultados.json",defaultextension=".json",filetypes=[("Resultados de SeasonAV1","*.json")])
+        filename=filedialog.asksaveasfilename(title="Guardar resultados para YomaTV Web",initialfile="YomaTV-resultados.json",defaultextension=".json",filetypes=[("Resultados de YomaTV","*.json")])
         if not filename:return
         def work():
             from pathlib import Path

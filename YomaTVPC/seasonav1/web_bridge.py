@@ -92,13 +92,13 @@ class WebBridge:
                 if not self.trusted():
                     self.respond(403,{'ok':False,'message':'Origen o dirección no autorizados.'});return False
                 if bridge.closed.is_set():
-                    self.respond(503,{'ok':False,'message':'SeasonAV1 se está cerrando.'});return False
+                    self.respond(503,{'ok':False,'message':'YomaTV se está cerrando.'});return False
                 auth=self.headers.get_all('Authorization',[])
                 try:expected=('Bearer '+pairing_token(bridge.directory)).encode()
                 except (OSError,ValueError,DownloadError):
                     self.respond(503,{'ok':False,'message':'El código local no está disponible. Genera otro desde Conectar web.'});return False
                 if len(auth)!=1 or not hmac.compare_digest(auth[0].encode(),expected):
-                    self.respond(401,{'ok':False,'message':'El código de conexión cambió. Empareja SeasonAV1 de nuevo.'});return False
+                    self.respond(401,{'ok':False,'message':'El código de conexión cambió. Empareja YomaTV de nuevo.'});return False
                 return True
             def do_OPTIONS(self):
                 methods={'/ping':'GET','/queue':'POST','/results':'GET','/status':'GET','/settings':'POST','/control':'POST','/files':'POST'}
@@ -165,11 +165,11 @@ class WebBridge:
                     elif self.path=='/settings':
                         result=apply_web_preferences(bridge.directory,plan)
                         if result['changed']:bridge.on_settings(result)
-                        self.respond(200,{'ok':True,'message':'Preferencias aplicadas en SeasonAV1.',**result})
+                        self.respond(200,{'ok':True,'message':'Preferencias aplicadas en YomaTV.',**result})
                     else:
                         result=import_plan(bridge.directory,plan)
                         bridge.on_queue(result)
-                        self.respond(200,{'ok':True,'message':'Cola recibida. SeasonAV1 continúa en la bandeja.',**result})
+                        self.respond(200,{'ok':True,'message':'Cola recibida. YomaTV continúa en la bandeja.',**result})
                 except (ValueError,TypeError,KeyError,DownloadError) as error:
                     self.respond(422,{'ok':False,'message':str(error)[:220]})
                 except RuntimeError as error:
