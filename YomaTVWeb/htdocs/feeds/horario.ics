@@ -1,0 +1,805 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//SeasonAV1//Horario semanal//ES
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:SeasonAV1 · emisiones estimadas
+REFRESH-INTERVAL;VALUE=DURATION:PT12H
+X-PUBLISHED-TTL:PT12H
+BEGIN:VEVENT
+UID:db8f78e9fb5b83f241a897512a93e5940ce2db1dc79281d7a6b27924df1a617f@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261019T132426Z
+DTEND:20261019T135426Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Doumo\, Suki na Hito ni Horegusuri wo Irai sareta Majo desu. · est
+ reno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/doumo-suki-na-hito-ni-horegusuri-wo-irai-sar
+ eta-majo-desu
+END:VEVENT
+BEGIN:VEVENT
+UID:e9639457ff50aa2fe2b8cc3d00aeb8018f2a69ec0f64ea3a59a76fcb46e09b69@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261012T231938Z
+DTEND:20261012T234938Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Mahou Shoujo Ikusei Keikaku: Restart · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/mahou-shoujo-ikusei-keikaku-restart
+END:VEVENT
+BEGIN:VEVENT
+UID:56fb9df878ac58f227d4c0233e8c6bddb73af00bb74d068b9ec676fd916ef607@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261019T144059Z
+DTEND:20261019T151059Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Psyren · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/psyren
+END:VEVENT
+BEGIN:VEVENT
+UID:e86208935bc5760c78ba2f9d6852844fadfa497cebe84f33ae174b4753286290@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261019T132815Z
+DTEND:20261019T135815Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tensei Goblin dakedo Shitsumon Aru? · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tensei-goblin-dakedo-shitsumon-aru
+END:VEVENT
+BEGIN:VEVENT
+UID:2155fb4fd59709a2605d46f29454384701c9889f2214f723183df5f809e3a474@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T151345Z
+DTEND:20261013T154345Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Battle Spirits [Re]: Zekkai no Kuu · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/battle-spirits-re-zekkai-no-kuu
+END:VEVENT
+BEGIN:VEVENT
+UID:9f4b4162e98cd14d710bd11f7497ab041c41ac1022a0846d91f312b8ac7c863c@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T160257Z
+DTEND:20261013T163257Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Chii Fuyo · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tsuihou-sareta-cheat-fuyo-majutsushi-wa-kima
+ ma-na-second-life-wo-ouka-suru-ore-wa-buki-dake-ja-naku-arayuru-mono-ni-ky
+ ouka-point-wo-fuyo-dekiru-shi-ore-no-ishi-de-itsudemo-kouka-wo-kaijo-dekir
+ u-kedo-nokotta-hitotachi-daijoubu
+END:VEVENT
+BEGIN:VEVENT
+UID:b22b0aa02eb53982df8fe104586a3928da91b9dc648b283b2b0d6eddbf8fb5e5@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T150529Z
+DTEND:20261013T153529Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Choujun! Choujou-senpai · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/choujun-choujou-senpai
+END:VEVENT
+BEGIN:VEVENT
+UID:6daaa4d569bedac98977b7d99c41f4745fa790d110d3abe2f498f637ae73e591@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T164405Z
+DTEND:20261013T171405Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kyouran Reijou Nia Liston: Byoujaku Reijou ni Tensei shita Kamigoro
+ shi no Bujin no Karei Naru Musouroku · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kyouran-reijou-nia-liston-byoujaku-reijou-ni
+ -tensei-shita-kamigoroshi-no-bujin-no-karei-naru-musouroku
+END:VEVENT
+BEGIN:VEVENT
+UID:0920a2c7e309647f6a59921963cc66798cf0b12cfc8fbfae1a1c525e85423637@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T135449Z
+DTEND:20261013T142449Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Shiotaiou no Satou-san ga Ore ni dake Amai · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/shiotaiou-no-satou-san-ga-ore-ni-dake-amai
+END:VEVENT
+BEGIN:VEVENT
+UID:8f7b953a56ab9b1c59433fd3199822c4f9ba99a4d27ab4c2c3c16f0fe5d126e7@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261013T180307Z
+DTEND:20261013T183307Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Sora wa Akai Kawa no Hotori · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/sora-wa-akai-kawa-no-hotori
+END:VEVENT
+BEGIN:VEVENT
+UID:e37d5cef76454ee53aed703fa7af409138aedc91fc2302af4f3478cbbf42bb6d@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20251118T064614Z
+DTEND:20251118T071614Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Yamato yo\, Towa ni: Rebel 3199 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/yamato-yo-towa-ni-rebel-3199
+END:VEVENT
+BEGIN:VEVENT
+UID:01c8583f9460b6545ed2c13c4aba3e623ff1d2ab97143d27f34c5dc757cd7279@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T172318Z
+DTEND:20261014T175318Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Juuou Mujin Dandivine · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/juuou-mujin-dandivine
+END:VEVENT
+BEGIN:VEVENT
+UID:6481514a749fc354a037c73cba8d45e2ada00d9ef6177a2091f897bb7bc0e189@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T181852Z
+DTEND:20261014T184852Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kikansha no Mahou wa Tokubetsu desu 2nd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kikansha-no-mahou-wa-tokubetsu-desu-2nd-seas
+ on
+END:VEVENT
+BEGIN:VEVENT
+UID:925c35f37c44336ccb828b129d6cb69e5158c9545856f10763b0d5bf3b199597@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T153230Z
+DTEND:20261014T160230Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Magic Knight Rayearth (2026) · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/magic-knight-rayearth-2026
+END:VEVENT
+BEGIN:VEVENT
+UID:9aa5b6e4a8662cbafd7720c27b90236cbbd0acb23c4e6dc8c30609f1271f26d4@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T131439Z
+DTEND:20261014T134439Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Sasaki to Pii-chan Season 2 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/sasaki-to-pii-chan-season-2
+END:VEVENT
+BEGIN:VEVENT
+UID:8a47ebcabd80475b6fd35f490da092494fb79da027b4e5fdcbb160c6f5ba7077@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T143533Z
+DTEND:20261014T150533Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Sekai Saikyou no Majo\, Hajimemashita · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/sekai-saikyou-no-majo-hajimemashita
+END:VEVENT
+BEGIN:VEVENT
+UID:ac22a043db2ed0acfe5467c42c6f90a5a6ec53cc9db6ff4646cc691a5e6d891e@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T162130Z
+DTEND:20261014T165130Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Shin Tennis no Oujisama: U-17 World Cup Kesshou Member Ketteisen ·
+  estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/shin-tennis-no-oujisama-u-17-world-cup-kessh
+ ou-member-ketteisen
+END:VEVENT
+BEGIN:VEVENT
+UID:91ac1d66750d73d7d55d808bc6f084eebd324a73b19793af98b43eedbdfaaafa@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T134942Z
+DTEND:20261014T141942Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tantei wa Mou\, Shindeiru. Season 2 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tantei-wa-mou-shindeiru-season-2
+END:VEVENT
+BEGIN:VEVENT
+UID:0b3aed330f5594146f3e5a580c324fbb5f7706271f90dbf09388077212008c6f@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261014T190249Z
+DTEND:20261014T193249Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tensei shitara Ken deshita II · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tensei-shitara-ken-deshita-ii
+END:VEVENT
+BEGIN:VEVENT
+UID:99897e3394e2dd0fa3fda5044eeac3d1d8c8aa23a6ac5ba98064e076859686d5@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261015T134639Z
+DTEND:20261015T141639Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:FX Senshi Kurumi-chan · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/fx-senshi-kurumi-chan
+END:VEVENT
+BEGIN:VEVENT
+UID:3987292ce15b74efa596cdff3deb90f5648e0fe44af033a9cb10a85f39b12550@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261015T172221Z
+DTEND:20261015T175221Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Hyouken no Majutsushi ga Sekai wo Suberu II · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/hyouken-no-majutsushi-ga-sekai-wo-suberu-ii
+END:VEVENT
+BEGIN:VEVENT
+UID:df0522c563792e0df871d4c3bb2064bc39c29797ae493f7f21968e63c3bec96a@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261015T155209Z
+DTEND:20261015T162209Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Koori no Jouheki 2nd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/koori-no-jouheki-2nd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:7400c013d3ce047194166250cbb8c6aa7f8829e736d5e625845ac0accf60c300@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T030901Z
+DTEND:20261016T033901Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Shiguang Dailiren III · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/shiguang-dailiren-iii
+END:VEVENT
+BEGIN:VEVENT
+UID:f833ed7a671c61513b85cb4626a17e70417a5177b2a8dbda0cdc2175fb489da4@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261015T194040Z
+DTEND:20261015T201040Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tetsuryou! Meet with Tetsudou Musume · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tetsuryou-meet-with-tetsudou-musume
+END:VEVENT
+BEGIN:VEVENT
+UID:73b519d9e6436d0d777dd2c5fa5027944b4f69ca6db3c22cc5dfa0b2638a16a6@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261015T161726Z
+DTEND:20261015T164726Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tsuihou sareta Tensei Juukishi wa Game Chishiki de Musou suru · es
+ treno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tsuihou-sareta-tensei-juukishi-wa-game-chish
+ iki-de-musou-suru
+END:VEVENT
+BEGIN:VEVENT
+UID:bf3031910ecb27d05f436fb6ff42b2574baa0f7c702b4ad9bd4fc4cfd2bc1dd3@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T161749Z
+DTEND:20261016T164749Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Hotaru no Yomeiri · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/hotaru-no-yomeiri
+END:VEVENT
+BEGIN:VEVENT
+UID:7bf5cc66fe20fc7c9b4685638619f3e9c375da2784cdbcb45ef1e633a6cf881d@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T011626Z
+DTEND:20261017T014626Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Keroro Gunsou☆ · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/keroro-gunsou
+END:VEVENT
+BEGIN:VEVENT
+UID:4386d5d06781fb5e94bb517a0c088066e83039928d4d9d722200737e67fac38c@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T150658Z
+DTEND:20261016T153658Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kusuriya no Hitorigoto 3rd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kusuriya-no-hitorigoto-3rd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:c439c3e182a3c7e17b7b0ead637d2bae30a770e07ed77a8f8ab2ca0937b601a6@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T125448Z
+DTEND:20261016T132448Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Steel Ball Run: JoJo no Kimyou na Bouken · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/steel-ball-run-jojo-no-kimyou-na-bouken
+END:VEVENT
+BEGIN:VEVENT
+UID:c8f938e8400c5e8be8336c9a7f66e1d8baec79ba7f26b7038820d92c74a5a1be@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T154538Z
+DTEND:20261016T161538Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Toaru Anbu no Item · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/toaru-anbu-no-item
+END:VEVENT
+BEGIN:VEVENT
+UID:18e23c55ee532e9573f62edfec990ab4d693c554c51bfe372a4d239fb888845a@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T125050Z
+DTEND:20261016T132050Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tokyo Revengers: Santen Sensou-hen · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tokyo-revengers-santen-sensou-hen
+END:VEVENT
+BEGIN:VEVENT
+UID:5814b5aa88d8f76e98c6e472496e3c2ef688e7e64e7f73216d74d42d80619249@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T162237Z
+DTEND:20261016T165237Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tougen Anki: Nikko Kegon no Taki-hen · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tougen-anki-nikko-kegon-no-taki-hen
+END:VEVENT
+BEGIN:VEVENT
+UID:080baf5a5b9d86d9b97af927aa37f8b3b19dc50e0c5fa0b2ba71f6abb29c05b4@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261016T164154Z
+DTEND:20261016T171154Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Uchi no Otouto-domo ga Sumimasen · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/uchi-no-otouto-domo-ga-sumimasen
+END:VEVENT
+BEGIN:VEVENT
+UID:59a779e294c0b58bedfaf0138e70ad96b442003b16f33bd1af659cd594e1ad30@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T151421Z
+DTEND:20261017T154421Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:#Zombie Sagashitemasu · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/zombie-sagashitemasu
+END:VEVENT
+BEGIN:VEVENT
+UID:104fecee8670a924f8c2bbcc4067f7360fa6d4b873f8543c86fd1c4bd843ee7c@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T151932Z
+DTEND:20261017T154932Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Black Clover 2nd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/black-clover-2nd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:d0ac5691d45794186538a25a78a3a496326f4dd001eeace1a0bb5e8f8479d564@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20260919T152420Z
+DTEND:20260919T155420Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Bleach: Sennen Kessen-hen - Kashin-tan · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/bleach-sennen-kessen-hen-kashin-tan
+END:VEVENT
+BEGIN:VEVENT
+UID:312e639c4a0a545bbb720354fb653c057cc55c3ccbb3c4bfc33fc90a519c51b7@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261010T202119Z
+DTEND:20261010T205119Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Gensou Suikoden · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/gensou-suikoden
+END:VEVENT
+BEGIN:VEVENT
+UID:163882cde01f478ec2063831da25e2f08256b59bd41a4fa41733091e3188f8dd@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T181857Z
+DTEND:20261017T184857Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kashita Maryoku wa "Revo Barai" de Kyousei Choushuu · estreno esti
+ mado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kashita-maryoku-wa-revo-barai-de-kyousei-cho
+ ushuu
+END:VEVENT
+BEGIN:VEVENT
+UID:ee4d5a67ff25b651a6e3965d2ebb3a4a2c7716ac7c04baac211f2dadc9972632@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T172651Z
+DTEND:20261017T175651Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kyoufu Collector · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kyoufu-collector
+END:VEVENT
+BEGIN:VEVENT
+UID:912e948421a97de5f3eda121a4de5bb2e05009bb06af9aecd16eeeb86e2b323d@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T163850Z
+DTEND:20261017T170850Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Magical★Explorer · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/magicalexplorer
+END:VEVENT
+BEGIN:VEVENT
+UID:c8a7ce2980bb0ced9a61ab9e6632007e56839b21d7dd399b8e0c8e67193f7ccb@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T152014Z
+DTEND:20261017T155014Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Marronnier Oukoku no Shichinin no Kishi · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/marronnier-oukoku-no-shichinin-no-kishi
+END:VEVENT
+BEGIN:VEVENT
+UID:d00bb96795bb5d23d72b949e002f28d65f602c1b8ddab1a12b22c2a28ceca643@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T172321Z
+DTEND:20261017T175321Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Ranma ½ (2024) 3rd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/ranma-2024-3rd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:4ee2b934055848f521ca46c94931fca240e8f663ae6d6886e8f810efdf605f35@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T131726Z
+DTEND:20261017T134726Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Romelia Senki · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/romelia-senki
+END:VEVENT
+BEGIN:VEVENT
+UID:3950f3238a2c250144881c4f9fe2b140313e776764dd2a53183e939de61c69b6@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T215139Z
+DTEND:20261017T222139Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Seitokai ni mo Ana wa Aru! · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/seitokai-ni-mo-ana-wa-aru
+END:VEVENT
+BEGIN:VEVENT
+UID:62732d6e5fb9a91904becafab9d55c39aaac30f1f29190244a3d267dce339221@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T124004Z
+DTEND:20261017T131004Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Shuiro no Kamen · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/shuiro-no-kamen
+END:VEVENT
+BEGIN:VEVENT
+UID:88a39e6ce68b1b5b81af348a071d13c26682a23c7aaafba3763c88987bd1dc49@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T131607Z
+DTEND:20261017T134607Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tensei shita Daiseijo wa\, Seijo de Aru Koto wo Hitakakusu · estre
+ no estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tensei-shita-daiseijo-wa-seijo-de-aru-koto-w
+ o-hitakakusu
+END:VEVENT
+BEGIN:VEVENT
+UID:387fd6e8482ab9b3b8e746871e43f85f9ea76855c9539b68725ef85709e45e41@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T162102Z
+DTEND:20261017T165102Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Vertex Force · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/vertex-force
+END:VEVENT
+BEGIN:VEVENT
+UID:19e8c6db641c1d1a8aa8f4b9d5dd9c7572bf1f5c33cf2ad4f385015b9e615d76@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261017T134813Z
+DTEND:20261017T141813Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Yasei no Last Boss ga Arawareta! 2nd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/yasei-no-last-boss-ga-arawareta-2nd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:f29447b310927245bde37a2019630713f47f083555ce64daa9dddcfe15843545@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T095454Z
+DTEND:20261018T102454Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Ao Ashi Season 2 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/ao-ashi-season-2
+END:VEVENT
+BEGIN:VEVENT
+UID:724493e3ebfc164df1b0f7fbfb83e7d8f3c28338c746870116f7f204eb8b0f68@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T095107Z
+DTEND:20261018T102107Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Ao no Hako Season 2 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/ao-no-hako-season-2
+END:VEVENT
+BEGIN:VEVENT
+UID:bb09f18e1532e1a3c1d8850d20c8e0ff8e4280bc2787083235b175ba2d0e57af@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T173115Z
+DTEND:20261018T180115Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Dark Summoner to Dekiteiru · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/dark-summoner-to-dekiteiru
+END:VEVENT
+BEGIN:VEVENT
+UID:85e4cef853ac50a0f26ccf96679cfe6091f13f8093fa7e43c076f0d0faeaadb8@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T100107Z
+DTEND:20261018T103107Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Diamond no Ace: Act II Second Season Part 2 · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/diamond-no-ace-act-ii-second-season-part-2
+END:VEVENT
+BEGIN:VEVENT
+UID:bbf296e72699a12e3f0ad8363fc22b1c044d212701685aa4bad3f1dc18e73718@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T161455Z
+DTEND:20261018T164455Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Dragon Ball Super: Beerus · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/dragon-ball-super-beerus
+END:VEVENT
+BEGIN:VEVENT
+UID:38fb9da2aab4c7659b95b27bd973d519ef1ce8dc3260aa927c9c91e544975d79@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T161429Z
+DTEND:20261018T164429Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Hotel Inhumans 2nd Season · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/hotel-inhumans-2nd-season
+END:VEVENT
+BEGIN:VEVENT
+UID:bf90e42cc9e10d46ab30acb7ab385331662825a553a31f696305a9a0ef67ce87@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T161623Z
+DTEND:20261018T164623Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Kanata kara · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/kanata-kara
+END:VEVENT
+BEGIN:VEVENT
+UID:3fe118e847f40c2af00225517a2e2608a1dde21e105b521a0bf86718d1e6c8f5@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T150745Z
+DTEND:20261018T153745Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Mezametara Saikyou Soubi to Uchuusenmochi Datta node\, Ikkodate Mez
+ ashite Youhei toshite Jiyuu ni Ikitai · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/mezametara-saikyou-soubi-to-uchuusenmochi-da
+ tta-node-ikkodate-mezashite-youhei-toshite-jiyuu-ni-ikitai
+END:VEVENT
+BEGIN:VEVENT
+UID:35559cfe6b3888c8ef316e7d9a6434fa9f71439dfde5c189be5f045409c0a147@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T190249Z
+DTEND:20261018T193249Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Mouse Cursor de Genjitsu wo Sousa Dekiru You ni Natta node\, Onna n
+ o Ko wo Ippai Click Shimaasu · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/mouse-cursor-de-genjitsu-wo-sousa-dekiru-you
+ -ni-natta-node-onna-no-ko-wo-ippai-click-shimaasu
+END:VEVENT
+BEGIN:VEVENT
+UID:593155b2dad19a324d143f8bf039c2219543b896398f398eb86fdfcc62781183@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T150849Z
+DTEND:20261018T153849Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Ojisan wa Kawaii Mono ga Osuki. · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/ojisan-wa-kawaii-mono-ga-osuki
+END:VEVENT
+BEGIN:VEVENT
+UID:53327d2827186d0d08b7a600c245180933cef4d0f107873ee509cc0187f11b2f@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T151941Z
+DTEND:20261018T154941Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Shinja Zero no Megami-sama to Hajimeru Isekai Kouryaku · estreno e
+ stimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/shinja-zero-no-megami-sama-to-hajimeru-iseka
+ i-kouryaku
+END:VEVENT
+BEGIN:VEVENT
+UID:000051be99d2900563fdde439930ab5775d7894b81550a2d61c4cc4840b3a66b@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T152016Z
+DTEND:20261018T155016Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tank Chair · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tank-chair
+END:VEVENT
+BEGIN:VEVENT
+UID:43442cf771b766cf20e09d5423b742037852958aa7886adfe65cbeb9d1f23227@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T150911Z
+DTEND:20261018T153911Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tempal: Item no Chikara · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tempal-item-no-chikara
+END:VEVENT
+BEGIN:VEVENT
+UID:3687f2ef6f4f7b07b0eda0707519c25c9b7eb76c1c211643d2162098184fcd19@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T153733Z
+DTEND:20261018T160733Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Tensei Kizoku\, Kantei Skill de Nariagaru 3rd Season · estreno est
+ imado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/tensei-kizoku-kantei-skill-de-nariagaru-3rd-
+ season
+END:VEVENT
+BEGIN:VEVENT
+UID:865ac19a1137f3b1b589b44bfd22a622e773b08eb4f7a5bb5d9aef42cd90ce89@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T151039Z
+DTEND:20261018T154039Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Yowaki Max Reijou nanoni\, Ratsuwan Konyakusha-sama no Kake ni Nott
+ e Shimatta · estreno estimado
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/yowaki-max-reijou-nanoni-ratsuwan-konyakusha
+ -sama-no-kake-ni-notte-shimatta
+END:VEVENT
+BEGIN:VEVENT
+UID:02aa0d3801a82f8a741a1f343d204f3a2ce91f288222d1319fdb00b00ca1fd6e@season
+ av1
+DTSTAMP:20261012T154414Z
+DTSTART:20261018T095322Z
+DTEND:20261018T102322Z
+RRULE:FREQ=WEEKLY;UNTIL=20270116T045032Z
+SUMMARY:Yozakura-san Chi no Daisakusen 2nd Season Part 2 · estreno estimad
+ o
+DESCRIPTION:Estimación semanal basada en AnimeAV1\; puede cambiar. La susc
+ ripción se renueva cuando se actualiza el horario.
+URL:https://animeav1.com/media/yozakura-san-chi-no-daisakusen-2nd-season-pa
+ rt-2
+END:VEVENT
+END:VCALENDAR

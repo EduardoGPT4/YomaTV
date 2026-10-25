@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "YomaTV · Progreso de video",
+  "version": "1.2.0",
+  "description": "Conecta la posición real de MP4Upload con YomaTV para marcar capítulos y sincronizarlos con MyAnimeList.",
+  "minimum_chrome_version": "102",
+  "permissions": ["storage"],
+  "background": { "service_worker": "worker.js" },
+  "icons": { "32": "icon-32.png", "128": "icon-192.png" },
+  "content_scripts": [
+    {
+      "matches": ["https://hk-br035.gt.tc/seasonav1/*"],
+      "js": ["parent.js"],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": [
+        "https://www.mp4upload.com/embed-*.html*",
+        "https://mp4upload.com/embed-*.html*"
+      ],
+      "js": ["video-bridge.js", "provider.js"],
+      "all_frames": true,
+      "run_at": "document_idle"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+**/build/
+**/.gradle/
+**/__pycache__/
+**/private/*.jks
+**/private/signing.properties
+**/*.local.php
+**/local.properties
+**/*.sqlite*
+**/*.db
+**/datos/
+**/descargas/
+release-artifacts/

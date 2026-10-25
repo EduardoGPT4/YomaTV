@@ -1,0 +1,5 @@
+-keep class app.yomatv.mobile.MainActivity { *; }
+-keep class app.yomatv.mobile.DownloadWorker { public <init>(...); }
+-keep class app.yomatv.mobile.SyncWorker { public <init>(...); }
+-keep class app.seasonav1.mobile.DownloadWorker { public <init>(...); }
+-keep class app.seasonav1.mobile.SyncWorker { public <init>(...); }

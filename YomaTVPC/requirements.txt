@@ -1,0 +1,5 @@
+yt-dlp==2026.8.19
+json5==0.15.0
+imageio-ffmpeg==0.6.0
+Pillow==12.3.0
+pystray==0.19.5
