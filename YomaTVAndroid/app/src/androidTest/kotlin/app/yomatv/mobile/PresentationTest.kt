@@ -22,6 +22,12 @@ class PresentationTest {
             val file=File(context.getExternalFilesDir(null),"verification/yoma-$name.png");file.parentFile!!.mkdirs()
             file.outputStream().use{out->assertTrue(instrumentation.uiAutomation.takeScreenshot().compress(Bitmap.CompressFormat.PNG,100,out))}
         }
+        fun readable(view:android.view.View){
+            if(view is android.widget.TextView&&view.layout!=null&&view.height>0){
+                assertTrue("Clipped label: ${view.text}",view.layout.height<=view.height-view.compoundPaddingTop-view.compoundPaddingBottom+1)
+            }
+            if(view is android.view.ViewGroup)for(i in 0 until view.childCount)readable(view.getChildAt(i))
+        }
         ActivityScenario.launch<MainActivity>(Intent(context,MainActivity::class.java).putExtra("qa_offline",true).putExtra("downloads",true)).use{scenario->
             Thread.sleep(800)
             scenario.onActivity { activity->
@@ -30,6 +36,7 @@ class PresentationTest {
                 assertEquals(4,nav.childCount)
                 assertEquals(listOf("Inicio","Temporada","Descargas","Más"),(0 until nav.childCount).map{nav.getChildAt(it).contentDescription.toString()})
                 for(i in 0 until nav.childCount)assertTrue(nav.getChildAt(i).height>=activity.dp(44))
+                readable(nav)
             }
             capture("downloads")
             scenario.onActivity { activity->MainActivity::class.java.getDeclaredMethod("selectTab",String::class.java).apply{isAccessible=true}.invoke(activity,"more") }
@@ -47,6 +54,7 @@ class PresentationTest {
                     assertTrue(row.height>=activity.dp(44))
                     assertEquals(row.contentDescription.toString(),(row.getChildAt(1)as android.widget.TextView).text.toString())
                 }
+                readable(content)
             }
             capture("more")
             scenario.onActivity{activity->
@@ -55,6 +63,9 @@ class PresentationTest {
                 scroll.scrollTo(0,scroll.getChildAt(0).height)
             }
             capture("more-bottom")
+            scenario.onActivity{activity->MainActivity::class.java.getDeclaredMethod("show",String::class.java).apply{isAccessible=true}.invoke(activity,"settings")}
+            scenario.onActivity{activity->readable(MainActivity::class.java.getDeclaredField("content").apply{isAccessible=true}.get(activity)as android.view.View)}
+            capture("settings")
         }
     }
 }

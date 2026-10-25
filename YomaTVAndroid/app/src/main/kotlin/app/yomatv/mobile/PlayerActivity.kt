@@ -62,7 +62,7 @@ class PlayerActivity : ComponentActivity() {
         root.addView(view, FrameLayout.LayoutParams(-1, -1))
         actions = LinearLayout(this).apply { setPadding(dp(10), dp(4), dp(10), dp(4)); gravity = Gravity.CENTER_VERTICAL; background = background(0xdc0e0d14.toInt(), dp(16).toFloat()) }
         actions.addView(control("‹", "Cerrar reproductor") { finish() })
-        caption = TextView(this).apply { text = "${episode.title} · ${episode.number}"; textSize = 16f; setTextColor(PAPER); maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }
+        caption = TextView(this).apply { text = "${episode.title} · ${episode.number}"; textSize = 16f; setTextColor(PAPER); includeFontPadding=false;gravity=Gravity.CENTER_VERTICAL;maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }
         actions.addView(caption, LinearLayout.LayoutParams(0,-2,1f))
         actions.addView(control("+85 s", "Saltar intro 85 segundos") { player?.let { it.seekTo((it.currentPosition + 85_000).coerceAtMost(it.duration.coerceAtLeast(0))); save(true) } })
         actions.addView(control("1×", "Velocidad de reproducción") { speed() })
@@ -70,9 +70,10 @@ class PlayerActivity : ComponentActivity() {
             runCatching { enterPictureInPictureMode(PictureInPictureParams.Builder().setAspectRatio(Rational(16,9)).build()) }
                 .onFailure { slide("Este dispositivo no permite picture-in-picture.") }
         })
-        root.addView(actions, FrameLayout.LayoutParams(-1, dp(56), Gravity.TOP).apply { setMargins(dp(8),dp(8),dp(8),0) })
+        actions.minimumHeight=dp(56)
+        root.addView(actions, FrameLayout.LayoutParams(-1, -2, Gravity.TOP).apply { setMargins(dp(8),dp(8),dp(8),0) })
         toast = TextView(this).apply {
-            textSize = 15f; setTextColor(PAPER); setPadding(dp(18), dp(12), dp(18), dp(12)); background = background(SURFACE, dp(24).toFloat()); visibility = View.GONE
+            textSize = 15f; setTextColor(PAPER); includeFontPadding=false;gravity=Gravity.CENTER;setLineSpacing(0f,1.15f);setPadding(dp(18), dp(12), dp(18), dp(12)); background = background(SURFACE, dp(24).toFloat()); visibility = View.GONE
         }
         root.addView(toast, FrameLayout.LayoutParams(-2, -2, Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL).apply { bottomMargin = dp(92); leftMargin = dp(18); rightMargin = dp(18) })
         view.setControllerVisibilityListener(PlayerView.ControllerVisibilityListener { visibility -> if (!isInPictureInPictureMode) actions.visibility = visibility })
@@ -89,6 +90,7 @@ class PlayerActivity : ComponentActivity() {
     }
     private fun control(text: String, description: String, action: () -> Unit) = Button(this).apply {
         this.text = text; contentDescription = description; isAllCaps = false; textSize = 14f; setTextColor(PAPER)
+        includeFontPadding=false;gravity=Gravity.CENTER;setPadding(dp(10),dp(6),dp(10),dp(6))
         background = background(SURFACE, dp(12).toFloat()); minWidth = dp(48); minimumWidth = dp(48); minHeight = dp(48); minimumHeight = dp(48)
         setOnClickListener { action() }
     }

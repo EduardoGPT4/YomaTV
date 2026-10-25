@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
-const source=fs.readFileSync(path.join(__dirname,'../app/src/main/assets/native-integration.js'),'utf8');
+const source=fs.readFileSync(path.join(__dirname,'../app/src/main/assets/native-integration.js'),'utf8').replace('/*YOMA_NATIVE_LAYOUT*/',JSON.stringify(fs.readFileSync(path.join(__dirname,'../app/src/main/assets/native-layout.css'),'utf8')));
 function environment(origin='https://hk-br035.gt.tc'){
   const clicks=[],posted=[],buttons=[],errors=[],requests=[];
   const transport={querySelector:()=>buttons[0],append:b=>buttons.push(b)};

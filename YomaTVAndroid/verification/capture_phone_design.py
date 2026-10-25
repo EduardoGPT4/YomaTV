@@ -5,7 +5,7 @@ import argparse,json,os,subprocess,xml.etree.ElementTree as ET
 ROOT=Path(__file__).resolve().parents[1]
 parser=argparse.ArgumentParser()
 parser.add_argument('--serial',required=True)
-parser.add_argument('--name',choices=['home','player','player-bottom','more','more-bottom','schedule','downloads'],required=True)
+parser.add_argument('--name',choices=['home','player','player-bottom','more','more-bottom','schedule','downloads','labels-before','labels-after','settings','forms'],required=True)
 args=parser.parse_args()
 adb=Path(os.environ.get('ANDROID_HOME',str(Path.home()/'AppData/Local/Android/Sdk')))/'platform-tools/adb.exe'
 def command(*parts):

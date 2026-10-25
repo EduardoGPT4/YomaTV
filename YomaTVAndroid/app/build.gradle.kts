@@ -7,8 +7,8 @@ android {
         applicationId = "app.seasonav1.mobile"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.1.2"
+        versionCode = 7
+        versionName = "1.1.3"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -33,7 +33,17 @@ android {
     kotlinOptions { jvmTarget = "17" }
     buildFeatures { buildConfig = true }
     lint { abortOnError = true; checkReleaseBuilds = true }
+    sourceSets.getByName("androidTest").assets.srcDir(layout.buildDirectory.dir("generated/layout-test-assets"))
 }
+
+// Exercise the real shared theme and MAL/search renderers without a live account.
+val prepareLayoutTestAssets by tasks.registering(Copy::class) {
+    from(rootProject.file("../YomaTVWeb/htdocs/assets")) {
+        include("app.css","features.css","medianoche.css","mobile-app.css","feature-ui.js","app.js")
+    }
+    into(layout.buildDirectory.dir("generated/layout-test-assets/web-layout"))
+}
+tasks.matching { it.name == "mergeDebugAndroidTestAssets" }.configureEach { dependsOn(prepareLayoutTestAssets) }
 dependencies {
     implementation(project(":engine"))
     implementation("androidx.activity:activity-ktx:1.9.0")

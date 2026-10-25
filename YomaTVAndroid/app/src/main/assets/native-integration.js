@@ -1,4 +1,4 @@
-(() => {
+((nativeLayout) => {
   'use strict';
   if (window.__seasonNative || !window.YomaAndroid || location.origin !== 'https://hk-br035.gt.tc' || !location.pathname.startsWith('/seasonav1/')) return;
   window.__seasonNative = true;document.documentElement.classList.add('yoma-native');
@@ -13,7 +13,7 @@
       .yoma-native .watch-servers .watch-server-notice{display:flex;flex-wrap:wrap;min-width:0;width:100%;margin:0}
       .yoma-native .watch-servers .watch-server-notice .button{min-width:0;max-width:100%;white-space:normal;flex:1;justify-content:center}
       .yoma-native .watch-servers .watch-external{justify-self:start;min-height:44px;display:inline-flex;align-items:center}
-      .yoma-native .watch-servers .watch-server-notice p{width:100%;overflow-wrap:anywhere}`;
+      .yoma-native .watch-servers .watch-server-notice p{width:100%;overflow-wrap:anywhere}` + (nativeLayout || '');
     document.head.append(style);
   }
   let suspended = false, nativeRendered=false;
@@ -75,4 +75,4 @@
     finally { b.disabled = false; }
   }, true);
   update();
-})();
+})(/*YOMA_NATIVE_LAYOUT*/);

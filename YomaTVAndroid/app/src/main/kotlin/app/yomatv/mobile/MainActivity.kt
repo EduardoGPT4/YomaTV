@@ -65,6 +65,11 @@ class MainActivity : ComponentActivity() {
     private val handler = Handler(Looper.getMainLooper())
     private var fullscreen: View? = null
     private var fullCallback: WebChromeClient.CustomViewCallback? = null
+    private val nativePresentation by lazy {
+        val css=assets.open("native-layout.css").bufferedReader().use{it.readText()}
+        assets.open("native-integration.js").bufferedReader().use{it.readText()}
+            .replace("/*YOMA_NATIVE_LAYOUT*/",JSONObject.quote(css))
+    }
     private val tick = object : Runnable {
         override fun run() { if (resumed && page == "downloads") renderDownloads() }
     }
@@ -83,8 +88,8 @@ class MainActivity : ComponentActivity() {
         header = LinearLayout(this).apply { gravity = android.view.Gravity.CENTER_VERTICAL; setPadding(dp(18), dp(8), dp(12), dp(8)) }
         val logo = ImageView(this).apply { setImageResource(R.mipmap.ic_launcher); contentDescription = "YomaTV" }
         header.addView(logo, LinearLayout.LayoutParams(dp(38), dp(38)).apply { rightMargin = dp(12) })
-        title = label("YomaTV", 24, PAPER, true)
-        header.addView(title, LinearLayout.LayoutParams(0, dp(48), 1f))
+        title = label("YomaTV", 24, PAPER, true).apply{setPadding(0,0,0,0);minHeight=dp(48);maxLines=1;ellipsize=android.text.TextUtils.TruncateAt.END}
+        header.addView(title, LinearLayout.LayoutParams(0, -2, 1f))
         fun headerAction(kind:String,name:String,action:()->Unit){
             val item=FrameLayout(this).apply{background=outlined(SURFACE,dp(24).toFloat());contentDescription=name;isFocusable=true;isClickable=true;setOnClickListener{action()}}
             item.addView(NavGlyph(this,kind),FrameLayout.LayoutParams(dp(23),dp(23),android.view.Gravity.CENTER))
@@ -96,18 +101,15 @@ class MainActivity : ComponentActivity() {
         content = FrameLayout(this)
         root.addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
         nav = LinearLayout(this).apply {
-            setPadding(dp(8), dp(8), dp(8), dp(8)); background = outlined(SURFACE, dp(26).toFloat())
+            isBaselineAligned=false
+            setPadding(dp(8), dp(4), dp(8), dp(4)); background = outlined(SURFACE, dp(26).toFloat())
             elevation = dp(6).toFloat()
         }
         listOf("catalog" to "Inicio", "schedule" to "Temporada", "downloads" to "Descargas", "more" to "Más").forEach { (key, name) ->
-            val item=LinearLayout(this).apply {
-                orientation=LinearLayout.VERTICAL;gravity=android.view.Gravity.CENTER
-                contentDescription=name;isFocusable=true;isClickable=true;tag=key
-                addView(NavGlyph(this@MainActivity,key),LinearLayout.LayoutParams(dp(27),dp(27)))
-                addView(label(name,12).apply { setPadding(0,dp(5),0,0) })
+            val item=NavigationTab(this,key,name).apply {
                 setOnClickListener { selectTab(key) }
             }
-            nav.addView(item,LinearLayout.LayoutParams(0,dp(58),1f))
+            nav.addView(item,LinearLayout.LayoutParams(0,-1,1f))
         }
         root.addView(nav,LinearLayout.LayoutParams(-1,-2).apply { setMargins(dp(10),0,dp(10),dp(4)) });setContentView(root)
         savedInstanceState?.let { saved ->
@@ -162,7 +164,7 @@ class MainActivity : ComponentActivity() {
             }
             override fun onPageFinished(view: WebView, url: String) {
                 if (trusted(url)) {
-                    view.evaluateJavascript(assets.open("native-integration.js").bufferedReader().use { it.readText() }, null)
+                    view.evaluateJavascript(nativePresentation, null)
                     CookieManager.getInstance().flush()
                 }
             }
@@ -332,10 +334,10 @@ class MainActivity : ComponentActivity() {
         profile.addView(label(if(prefs.owner>0)"Hola, ${userName.ifBlank { "de nuevo" }}" else "Tu próxima historia empieza aquí",22,PAPER,true))
         profile.addView(button(if(prefs.owner>0)"Ver mi cuenta  →" else "Iniciar sesión  →",false){openWebAccount()})
         fun section(title:String, entries:List<Triple<String,String,String>>) {
-            layout.addView(label(title,13,MUTED));val box=card(layout)
+            layout.addView(label(title,14,MUTED));val box=card(layout)
             entries.forEachIndexed{index,(glyph,entryLabel,route)->
                 val row=LinearLayout(this).apply{
-                    gravity=android.view.Gravity.CENTER_VERTICAL;setPadding(dp(10),0,dp(8),0)
+                    gravity=android.view.Gravity.CENTER_VERTICAL;setPadding(dp(10),dp(12),dp(8),dp(12));minimumHeight=dp(56)
                     tag="more-entry-$route";contentDescription=entryLabel;isFocusable=true;isClickable=true
                     background=android.graphics.drawable.RippleDrawable(android.content.res.ColorStateList.valueOf(0x22ff6a55),android.graphics.drawable.ColorDrawable(SURFACE),null)
                     setOnClickListener{when(route){"native"->show("settings");"more"->moreMenu();else->webRoute(route)}}
@@ -343,7 +345,7 @@ class MainActivity : ComponentActivity() {
                 row.addView(NavGlyph(this,glyph).apply{importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(dp(25),dp(25)).apply{rightMargin=dp(14)})
                 row.addView(label(entryLabel,16,PAPER).apply{setPadding(0,0,0,0);importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(0,-2,1f))
                 row.addView(NavGlyph(this,"chevron").apply{tint=MUTED;importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO},LinearLayout.LayoutParams(dp(18),dp(18)).apply{leftMargin=dp(8)})
-                box.addView(row,LinearLayout.LayoutParams(-1,dp(56)))
+                box.addView(row,LinearLayout.LayoutParams(-1,-2))
                 if(index<entries.lastIndex)box.addView(View(this).apply{setBackgroundColor(0xff393449.toInt())},LinearLayout.LayoutParams(-1,dp(1)))
             }
         }
@@ -404,9 +406,9 @@ class MainActivity : ComponentActivity() {
             max=1000;progress=(1000.0*used/(used+free).coerceAtLeast(1)).toInt();progressTintList=android.content.res.ColorStateList.valueOf(ACCENT)
         })
         storage.addView(button("Administrar almacenamiento  →",false){show("settings")})
-        val filters=LinearLayout(this).apply{setPadding(0,dp(16),0,dp(8))}
+        val filters=LinearLayout(this).apply{isBaselineAligned=false;setPadding(0,dp(16),0,dp(8))}
         listOf("all" to "Todas","active" to "En curso","done" to "Completadas").forEach{(key,name)->
-            filters.addView(button(name,downloadFilter==key){downloadFilter=key;signature="";renderDownloads()},LinearLayout.LayoutParams(0,dp(46),1f).apply{rightMargin=dp(5)})
+            filters.addView(button(name,downloadFilter==key){downloadFilter=key;signature="";renderDownloads()}.apply{maxLines=2;ellipsize=android.text.TextUtils.TruncateAt.END},LinearLayout.LayoutParams(0,-1,1f).apply{rightMargin=dp(5)})
         }
         layout.addView(filters)
         layout.addView(button(if(prefs.paused)"Continuar descargas" else "Pausar descargas",false){
@@ -460,7 +462,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         if(jobs.isNotEmpty()&&visible.isEmpty())layout.addView(label("No hay capítulos en este filtro.",16,MUTED))
-        layout.addView(Switch(this).apply{text="Descargar solo con Wi-Fi";textSize=15f;setTextColor(PAPER);minHeight=dp(56);isChecked=prefs.wifiOnly;setOnCheckedChangeListener{_,checked->prefs.wifiOnly=checked;Queue.start(this@MainActivity,true)}})
+        layout.addView(toggleControl("Descargar solo con Wi-Fi",prefs.wifiOnly){checked->prefs.wifiOnly=checked;Queue.start(this@MainActivity,true)})
         (content.getChildAt(0) as? ScrollView)?.post { (content.getChildAt(0) as? ScrollView)?.scrollTo(0, scroll) }
     }
     private fun status(ep: Episode): String = when (ep.state) {
@@ -493,7 +495,7 @@ class MainActivity : ComponentActivity() {
         layout.addView(label("Tu biblioteca, contigo", 27, PAPER, true))
         layout.addView(label("Los videos se guardan en el almacenamiento privado de YomaTV. Al desinstalar la app, Android elimina esos archivos.", 16, MUTED))
         fun toggle(text: String, value: Boolean, change: (Boolean) -> Unit) {
-            layout.addView(Switch(this).apply { this.text = text; textSize = 16f; setTextColor(PAPER); minHeight = dp(60); isChecked = value; setOnCheckedChangeListener { _, checked -> change(checked) } })
+            layout.addView(toggleControl(text,value,change))
         }
         toggle("Descargar solo por Wi-Fi", prefs.wifiOnly) { prefs.wifiOnly = it; Queue.start(this, true) }
         toggle("Eliminar videos vistos al cerrar el reproductor", prefs.cleanWatched) { prefs.cleanWatched = it }
@@ -506,12 +508,23 @@ class MainActivity : ComponentActivity() {
         layout.addView(label("YomaTV Android · ${BuildConfig.VERSION_NAME}", 14, MUTED));restoreNativeScroll("settings")
     }
     private fun label(text: String, size: Int, color: Int = PAPER, serif: Boolean = false) = TextView(this).apply {
-        this.text = text; textSize = size.toFloat(); setTextColor(color); setPadding(0, dp(8), 0, dp(8)); if (serif) typeface = Typeface.create("serif", Typeface.NORMAL)
+        this.text = text; textSize = size.toFloat(); setTextColor(color); includeFontPadding=false
+        gravity=android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL
+        textAlignment=View.TEXT_ALIGNMENT_GRAVITY;setLineSpacing(0f,1.15f);setPadding(0,dp(6),0,dp(6))
+        if (serif) typeface = Typeface.create("serif", Typeface.NORMAL)
     }
     private fun button(text: String, primary: Boolean, action: () -> Unit) = Button(this).apply {
         this.text = text; isAllCaps = false; textSize = 14f; minHeight = dp(48); minimumHeight = dp(48)
+        includeFontPadding=false;gravity=android.view.Gravity.CENTER;textAlignment=View.TEXT_ALIGNMENT_GRAVITY
+        minWidth=0;minimumWidth=0;setLineSpacing(0f,1.1f)
         setTextColor(if (primary) INK else PAPER); background = outlined(if (primary) ACCENT else SURFACE, dp(26).toFloat())
-        setPadding(dp(12), dp(4), dp(12), dp(4)); setOnClickListener { action() }
+        setPadding(dp(12), dp(10), dp(12), dp(10)); setOnClickListener { action() }
+    }
+    private fun toggleControl(text:String,value:Boolean,change:(Boolean)->Unit)=Switch(this).apply{
+        this.text=text;textSize=16f;setTextColor(PAPER);includeFontPadding=false
+        gravity=android.view.Gravity.START or android.view.Gravity.CENTER_VERTICAL;textAlignment=View.TEXT_ALIGNMENT_GRAVITY
+        minHeight=dp(56);switchPadding=dp(16);setPadding(0,dp(10),0,dp(10));setLineSpacing(0f,1.15f)
+        isChecked=value;setOnCheckedChangeListener{_,checked->change(checked)}
     }
     private fun card(parent: LinearLayout): LinearLayout = LinearLayout(this).apply {
         orientation = LinearLayout.VERTICAL; setPadding(dp(16), dp(12), dp(16), dp(12)); background = outlined(SURFACE, dp(20).toFloat())

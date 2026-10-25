@@ -6,6 +6,25 @@ import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.drawable.GradientDrawable
 import android.view.View
+import android.view.Gravity
+import android.widget.LinearLayout
+import android.widget.TextView
+
+/** A tab has its own text rules; body-label padding must never move its caption. */
+class NavigationTab(context: Context, key: String, name: String): LinearLayout(context) {
+    init {
+        orientation=VERTICAL;gravity=Gravity.TOP or Gravity.CENTER_HORIZONTAL
+        minimumHeight=context.dp(64);setPadding(context.dp(3),context.dp(6),context.dp(3),context.dp(6))
+        contentDescription=name;isFocusable=true;isClickable=true;tag=key
+        addView(NavGlyph(context,key),LayoutParams(context.dp(24),context.dp(24)))
+        addView(TextView(context).apply {
+            text=name;textSize=14f;setTextColor(PAPER);includeFontPadding=false
+            gravity=Gravity.CENTER;textAlignment=View.TEXT_ALIGNMENT_GRAVITY
+            maxLines=2;ellipsize=android.text.TextUtils.TruncateAt.END;setLineSpacing(0f,1.1f)
+            importantForAccessibility=View.IMPORTANT_FOR_ACCESSIBILITY_NO
+        },LayoutParams(LayoutParams.MATCH_PARENT,LayoutParams.WRAP_CONTENT).apply{topMargin=context.dp(5)})
+    }
+}
 
 fun outlined(color: Int, radius: Float) = GradientDrawable().apply {
     setColor(color); cornerRadius=radius; setStroke(1,0xff393449.toInt())

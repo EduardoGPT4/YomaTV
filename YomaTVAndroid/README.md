@@ -1,6 +1,8 @@
 # YomaTV Android
 
-Aplicación Android 8 o posterior, versión 1.1.2. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+Aplicación Android 8 o posterior, versión 1.1.3. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+
+La revisión 1.1.3 corrige la alineación de labels, navegación inferior, carruseles MAL y buscadores. Consulta [los cambios y las pruebas de texto](YOMATV-1.1.3.md).
 
 La revisión 1.1.2 sustituye los símbolos de «Más» por iconos vectoriales y ajusta la tarjeta de servidores para pantallas estrechas. Consulta [los cambios y la revisión física](YOMATV-1.1.2.md).
 
