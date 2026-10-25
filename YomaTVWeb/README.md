@@ -1,6 +1,6 @@
 # YomaTV Web
 
-**Estado del fuente:** publicada la integración Android el 24 de octubre de 2026, versión `android-20261024-1`. [Cliente Android y contrato](ANDROID-2026-10-24.md).
+**Estado del fuente:** YomaTV publicada el 25 de octubre de 2026, versión web `yomatv-20261025-1`. [Identidad, aplicaciones y publicación automática](YOMATV-2026-10-25.md).
 
 Aplicación PHP + MySQL publicada en **https://hk-br035.gt.tc/seasonav1/**. La portada es el catálogo completo: **4.485 títulos** obtenidos del HTML público de AnimeAV1, sin su API oficial. **Temporada** conserva el horario de 64 animes como sección secundaria. Los capítulos de cada anime se consultan al abrir su ficha. La página anterior del dominio se conserva.
 
@@ -41,7 +41,7 @@ La limpieza del 13 de octubre de 2026 retiró las bases SQLite de prueba, caché
 ## Usarla
 
 1. Abre la web y crea tu cuenta. Esa cuenta es independiente de las credenciales MySQL del alojamiento.
-   Si todavía no tienes la aplicación, pulsa **Descargar .exe** en la portada, el módulo «Cómo funciona» o el diálogo de conexión: abre el [enlace de YomaTV en Google Drive](https://drive.google.com/file/d/1QWkg4u8nE6_s6LvlbvwGh7CGwB6Kk2xR/view?usp=drive_link) proporcionado por el propietario.
+   Si todavía no tienes la aplicación, pulsa **Descargar .exe** en la portada, el módulo «Cómo funciona» o el diálogo de conexión: abre el [enlace de YomaTV en GitHub Releases](https://github.com/EduardoGPT4/YomaTV/releases) proporcionado por el propietario.
 2. Explora **Catálogo completo**, busca un título, filtra su formato y ordena por nombre o incorporación. Pulsa **Seguir** o la estrella. En cada ficha puedes marcar capítulos vistos, guardar notas, puntuar y excluir un anime de las descargas. **Temporada** permite consultar el horario semanal.
 3. Pulsa **Preparar** para añadir el último capítulo, o abre una ficha y elige capítulos/todos los disponibles. No se crean solicitudes duplicadas para el mismo capítulo e idioma.
 4. Empareja una vez: en el YomaTV.exe actualizado pulsa **Conectar web**, copia el código y pégalo en **Conectar YomaTV** de la página. Permite el acceso a la red local si el navegador lo solicita. Usa la web en ese mismo equipo y mantén la aplicación en la bandeja.
