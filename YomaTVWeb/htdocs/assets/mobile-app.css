@@ -23,3 +23,40 @@
 .yoma-native .watch-servers>.watch-server-groups{display:grid;grid-template-columns:minmax(0,1fr);gap:0;width:100%;min-width:0}
 .yoma-native .watch-server-group>.watch-server-label{font-size:14px;width:auto}
 .yoma-native .watch-server-group>.watch-server-label:after{content:none}
+
+/* Mobile shell aligned with the compact reference screens. */
+.yoma-native .personal-guide,.yoma-native .app-download-section{display:none!important}
+.yoma-native .yoma-featured{min-height:240px;aspect-ratio:1.45;border-radius:24px}
+.yoma-native .yoma-featured h1{font-size:28px;-webkit-line-clamp:2;line-height:1.12}
+.yoma-native .yoma-featured-copy{left:18px;right:18px;bottom:18px}
+.yoma-native .yoma-featured-label{font-size:12px;padding:7px 10px;top:12px;left:12px}
+.yoma-native .yoma-featured p{font-size:14px;margin:8px 0 12px}
+.yoma-native .yoma-featured .toolbar{gap:8px}.yoma-native .yoma-featured .button{padding:10px 14px;min-height:44px}
+.yoma-native .yoma-home-tabs{margin-bottom:14px}.yoma-native .yoma-home-tabs>a{width:44px;height:44px;border-radius:50%}
+.yoma-native .continue-card>img{width:88px;height:70px}.yoma-native .continue-card strong{font-family:var(--font-heading);font-size:18px}
+.yoma-native .personal-cards .mal-card-actions{display:none}
+.yoma-native .yoma-season-pill{padding:0 6px;min-height:48px;justify-content:space-between;margin:0 0 12px}
+.yoma-native .yoma-season-pill strong{font-size:18px;font-weight:500}
+.yoma-native .yoma-season-pill .icon-button{width:44px;height:44px;border:0;color:#c4a7ef;font-size:30px;background:none}
+.yoma-native .yoma-season-modes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.yoma-native .yoma-season-modes button{border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:17px;min-height:44px;padding:8px;font-size:14px}
+.yoma-native .yoma-season-modes button.selected{background:var(--accent);border-color:var(--accent);color:#160b09}
+.yoma-native .yoma-season .day-tabs{padding:0;border:0;background:none;margin:0 0 18px;gap:7px}
+.yoma-native .yoma-season .day-tab{flex:1;min-width:44px;border:1px solid var(--border);border-radius:14px;background:var(--surface)}
+.yoma-native .yoma-season .day-tab.active{background:#a580d8;color:var(--text)}
+.yoma-native .yoma-season .section-heading{margin:0 0 12px;gap:8px}.yoma-native .yoma-season .section-heading h2{font-size:24px;flex:1}
+.yoma-native .yoma-season .section-heading>span{font-size:14px;white-space:nowrap;color:var(--muted)}
+.yoma-native .yoma-season .section-heading>.icon-button{width:38px;min-width:38px;height:44px;border:0;background:none}
+.yoma-native .yoma-release-cover{height:auto;aspect-ratio:1.42;border-radius:14px}
+.yoma-native .yoma-release h3{font-family:var(--font-heading);font-size:18px;line-height:1.2;margin:7px 0 3px}
+.yoma-native .yoma-release p{font-size:14px;margin:5px 0 0}
+.yoma-native .yoma-release-cover span{border-radius:0 10px 0 0;font-size:13px;padding:5px 9px}
+.yoma-native .yoma-season-grid{gap:18px 13px}.yoma-native .yoma-season-footer{display:flex;flex-wrap:wrap;gap:14px;margin:24px 0 0;justify-content:space-between}
+
+.mal-home-meta{display:none}
+.yoma-native .personal-cards .mal-home-meta{display:block;color:var(--muted);font-size:14px;line-height:1.4;margin-top:7px}
+.yoma-native .personal-cards .mal-full-meta,.yoma-native .personal-cards .card-status,.yoma-native .personal-cards .episode-badge{display:none}
+.yoma-native .personal-cards .card-title{font-family:var(--font-heading)}
+.yoma-native .personal-section .section-heading>.button[data-view=mal]{padding:0;border:0;background:none;color:#c4a7ef;font-size:14px}
+
+.yoma-native .header-inner{min-height:64px;padding:8px 18px}.yoma-native .brand>span{font-size:24px}

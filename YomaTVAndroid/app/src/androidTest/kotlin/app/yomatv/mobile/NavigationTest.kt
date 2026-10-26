@@ -43,4 +43,26 @@ class NavigationTest {
         assertTrue(androidx.work.Worker::class.java.isAssignableFrom(Class.forName("app.seasonav1.mobile.DownloadWorker")))
         assertTrue(androidx.work.Worker::class.java.isAssignableFrom(Class.forName("app.seasonav1.mobile.SyncWorker")))
     }
+    @Test fun accountNeverReplacesTheMoreMenuOrTheOpenChapter(){
+        ActivityScenario.launch<MainActivity>(Intent(instrumentation.targetContext,MainActivity::class.java).putExtra("qa_offline",true)).use{scenario->
+            lateinit var home:WebView
+            scenario.onActivity{a->home=browser(a);home.loadDataWithBaseURL(SITE,"<html><body style='height:5000px'><p>Capítulo abierto</p></body></html>","text/html","UTF-8",SITE)}
+            Thread.sleep(700);value(scenario,"location.hash='watch/99';window.keptChapter='original';window.scrollTo(0,400);true")
+            scenario.onActivity{a->MainActivity::class.java.getDeclaredMethod("openWebAccount").apply{isAccessible=true}.invoke(a);assertNotSame(home,browser(a))}
+            scenario.onActivity{a->
+                select(a,"more")
+                assertEquals("more",MainActivity::class.java.getDeclaredField("page").apply{isAccessible=true}.get(a))
+                val content=MainActivity::class.java.getDeclaredField("content").apply{isAccessible=true}.get(a)as android.view.ViewGroup
+                assertNotNull(content.findViewWithTag<android.view.View>("more-entry-library"))
+                select(a,"catalog");assertSame(home,browser(a))
+            }
+            assertEquals("\"original\"",value(scenario,"window.keptChapter"));assertEquals("\"#watch/99\"",value(scenario,"location.hash"))
+            scenario.onActivity{a->
+                MainActivity::class.java.getDeclaredMethod("openWebAccount").apply{isAccessible=true}.invoke(a)
+                MainActivity::class.java.getDeclaredMethod("closeWebAccount").apply{isAccessible=true}.invoke(a)
+                assertSame(home,browser(a))
+            }
+            assertTrue(value(scenario,"window.scrollY").toDouble()>200)
+        }
+    }
 }

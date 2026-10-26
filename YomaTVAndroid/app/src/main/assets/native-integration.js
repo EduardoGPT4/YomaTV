@@ -53,6 +53,10 @@
   window.addEventListener('hashchange',update);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { previousAuth=''; update(); } });
   document.addEventListener('click', async event => {
+    const account=event.target.closest('#account[data-action="account"]');
+    if(account&&location.hash!=='#account'){
+      event.preventDefault();event.stopImmediatePropagation();post({type:'account'});return;
+    }
     const b = event.target.closest('[data-native-offline]'); if (!b || b.disabled) return;
     event.preventDefault(); event.stopImmediatePropagation(); b.disabled = true;
     const owner = Number(state?.user?.id)||0;

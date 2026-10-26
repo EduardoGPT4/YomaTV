@@ -64,6 +64,10 @@ class MainActivity : ComponentActivity() {
     private var resumed = false
     private var webReady = false
     private var pendingAccount = false
+    private var accountReturnPage = "web"
+    private var accountReturnTab = "catalog"
+    private var downloadsPanel: DownloadsPanel? = null
+    private var downloadsOwner = -1L
     private val handler = Handler(Looper.getMainLooper())
     private var fullscreen: View? = null
     private var fullCallback: WebChromeClient.CustomViewCallback? = null
@@ -121,19 +125,22 @@ class MainActivity : ComponentActivity() {
         savedInstanceState?.let { saved ->
             activeTab=saved.getString("activeTab","catalog");group=saved.getString("downloadGroup")
             downloadFilter=saved.getString("downloadFilter","all")
-            for(key in listOf("catalog","schedule","more"))saved.getBundle("web-$key")?.let{restoredTabs[key]=it}
+            for(key in listOf("catalog","schedule","more","account"))saved.getBundle("web-$key")?.let{restoredTabs[key]=it}
             for(key in listOf("downloads","more","settings"))nativeScroll[key]=saved.getInt("scroll-$key",0)
+            accountReturnPage=saved.getString("accountReturnPage","web");accountReturnTab=saved.getString("accountReturnTab","catalog")
         }
         web = webFor(if(activeTab in setOf("catalog","schedule","more"))activeTab else "catalog")
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                when { fullscreen != null -> exitFullscreen(); page == "downloads" && group != null -> { group = null; signature = ""; renderDownloads() }; page == "settings" -> show("more"); page == "more" -> selectTab("catalog"); page != "web" -> selectTab("catalog"); web.canGoBack() -> web.goBack(); else -> finish() }
+                when { fullscreen != null -> exitFullscreen(); page == "account" -> closeWebAccount(); page == "downloads" && group != null -> { group = null; signature = ""; renderDownloads() }; page == "settings" -> if(activeTab=="downloads")show("downloads")else moreMenu(); page == "more" -> selectTab("catalog"); page != "web" -> selectTab("catalog"); web.canGoBack() -> web.goBack(); else -> finish() }
             }
         })
         WorkManager.getInstance(this).getWorkInfosForUniqueWorkLiveData("downloads").observe(this) { infos ->
             running = infos.any { it.state == WorkInfo.State.RUNNING }; if (page == "downloads") { signature = ""; renderDownloads() }
         }
-        selectTab(if (intent.getBooleanExtra("downloads", false)) "downloads" else activeTab)
+        if(savedInstanceState?.getString("nativePage")=="account"){
+            web=webFor("account");webReady="account" in readyTabs;show("account");pendingAccount=!webReady
+        }else selectTab(if (savedInstanceState==null&&intent.getBooleanExtra("downloads", false)) "downloads" else activeTab)
         if (!(BuildConfig.DEBUG && intent.getBooleanExtra("qa_offline", false))) {
             Queue.start(this); Queue.sync(this)
         }
@@ -175,7 +182,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
             override fun onReceivedError(view: WebView, request: WebResourceRequest, error: WebResourceError) {
-                if (request.isForMainFrame) { readyTabs.remove(key); if(isActiveBrowser(web)) webReady=false; toast("Sin conexión. Tus capítulos guardados siguen disponibles."); if (prefs.owner > 0 && isActiveBrowser(web)) selectTab("downloads") }
+                if (request.isForMainFrame) { readyTabs.remove(key); if(isActiveBrowser(web))webReady=false; if(isWebPage()&&isActiveBrowser(web)){toast("Sin conexión. Tus capítulos guardados siguen disponibles.");if(prefs.owner>0)selectTab("downloads")} }
             }
         }
         web.webChromeClient = object : WebChromeClient() {
@@ -191,28 +198,27 @@ class MainActivity : ComponentActivity() {
         }
         val restored=restoredTabs.remove(key)
         if(restored!=null)web.restoreState(restored)
-        if(web.url==null && !(BuildConfig.DEBUG && intent.getBooleanExtra("qa_offline",false)))web.loadUrl(SITE+if(key=="schedule")"#schedule" else "#discover")
+        if(web.url==null && key!="more" && !(BuildConfig.DEBUG && intent.getBooleanExtra("qa_offline",false)))web.loadUrl(SITE+when(key){"schedule"->"#schedule";"account"->"#account";else->"#discover"})
         web
     }
+    private fun isWebPage()=page in setOf("web","account")
     private fun isActiveBrowser(candidate:WebView)=::web.isInitialized && candidate===web
     private fun rememberNativeScroll() {
         (content.getChildAt(0) as? ScrollView)?.let{nativeScroll[page]=it.scrollY}
     }
     private fun selectTab(key: String) {
         rememberNativeScroll()
-        if(::web.isInitialized && page=="web")suspendWeb()
+        if(::web.isInitialized && isWebPage())suspendWeb()
         activeTab=key
         when(key){
             "downloads"->show("downloads")
-            "more"->{
-                if(webTabs.containsKey("more")){web=webFor("more");webReady="more" in readyTabs;show("web")}
-                else show("more")
-            }
+            "more"->show("more")
             else->{web=webFor(key);webReady=key in readyTabs;show("web")}
         }
     }
     override fun onSaveInstanceState(out: Bundle) {
         rememberNativeScroll();out.putString("activeTab",activeTab);out.putString("downloadGroup",group);out.putString("downloadFilter",downloadFilter)
+        out.putString("nativePage",page);out.putString("accountReturnPage",accountReturnPage);out.putString("accountReturnTab",accountReturnTab)
         webTabs.forEach{(key,view)->out.putBundle("web-$key",Bundle().also{view.saveState(it)})}
         nativeScroll.forEach{(key,value)->out.putInt("scroll-$key",value)}
         super.onSaveInstanceState(out)
@@ -245,6 +251,7 @@ class MainActivity : ComponentActivity() {
                         webTabs.remove(other)?.let{old -> (old.parent as? ViewGroup)?.removeView(old);old.destroy()}
                         readyTabs.remove(other);restoredTabs.remove(other)
                     }
+                    downloadsPanel=null;downloadsOwner=-1;nativeScroll.remove("downloads")
                     if (page == "downloads") content.removeAllViews()
                 }
                 if (owner > 0) { CookieManager.getInstance().flush(); Queue.start(this); Queue.sync(this) }
@@ -252,6 +259,7 @@ class MainActivity : ComponentActivity() {
                 if (pendingAccount) { pendingAccount=false; openWebAccount() }
             }
             "plan" -> choose(message)
+            "account" -> if(source===web)openWebAccount()
             "navigation" -> if(source === web) updateNav(message.optString("route"))
             "more" -> { activeTab="more";show("more") }
             "notifications" -> web.evaluateJavascript("document.querySelector('#notifications-toggle')?.click()",null)
@@ -308,13 +316,13 @@ class MainActivity : ComponentActivity() {
 
     private fun show(target: String) {
         rememberNativeScroll(); page = target; signature = ""
-        if(target=="downloads")activeTab="downloads"
-        header.visibility = if (target == "web") View.GONE else View.VISIBLE
+        if(target in setOf("downloads","more"))activeTab=target
+        header.visibility = if (target in setOf("web","account")) View.GONE else View.VISIBLE
         (web.parent as? ViewGroup)?.removeView(web)
         content.removeAllViews()
         when (target) {
-            "web" -> { title.text = "YomaTV"; content.addView(web, FrameLayout.LayoutParams(-1, -1)); resumeWeb() }
-            "downloads" -> { title.text = "YomaTV"; suspendWeb(); renderDownloads() }
+            "web", "account" -> { title.text = "YomaTV"; content.addView(web, FrameLayout.LayoutParams(-1, -1)); resumeWeb() }
+            "downloads" -> { title.text = "YomaTV"; suspendWeb(); downloadsPanel?.takeIf{downloadsOwner==prefs.owner}?.let{content.addView(it)}; renderDownloads() }
             "more" -> { title.text = "YomaTV"; suspendWeb(); renderMore() }
             else -> { title.text = "YomaTV"; suspendWeb(); renderSettings() }
         }
@@ -330,7 +338,7 @@ class MainActivity : ComponentActivity() {
         }
     }
     private fun webRoute(route: String) {
-        if(page=="web")suspendWeb()
+        if(isWebPage())suspendWeb()
         activeTab="more";web=webFor("more");webReady="more" in readyTabs;show("web")
         if(trusted(web.url) && webReady) web.evaluateJavascript("location.hash="+JSONObject.quote("#$route"),null) else web.loadUrl(SITE+"#$route")
         updateNav(route)
@@ -381,8 +389,16 @@ class MainActivity : ComponentActivity() {
         (content.getChildAt(0) as? ScrollView)?.let { scroll->scroll.post{scroll.scrollTo(0,nativeScroll[key]?:0)} }
     }
     private fun openWebAccount() {
-        activeTab="more";web=webFor("more");webReady="more" in readyTabs;show("web")
-        if(webReady)web.evaluateJavascript("document.querySelector('#account')?.click()",null) else { pendingAccount=true;web.loadUrl(SITE) }
+        if(page!="account") { rememberNativeScroll();accountReturnPage=page;accountReturnTab=activeTab;if(isWebPage())suspendWeb() }
+        web=webFor("account");webReady="account" in readyTabs;show("account")
+        if(webReady)web.evaluateJavascript("location.hash='#account';if(!state?.user)document.querySelector('#account')?.click()",null)
+        else pendingAccount=true
+    }
+    private fun closeWebAccount() {
+        suspendWeb();activeTab=accountReturnTab
+        web=webFor(if(activeTab in setOf("catalog","schedule","more"))activeTab else "catalog")
+        webReady=webTabs.entries.firstOrNull{it.value===web}?.key in readyTabs
+        show(accountReturnPage)
     }
     private fun container(): LinearLayout {
         val layout = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(dp(18), dp(12), dp(18), dp(24)) }
@@ -408,84 +424,57 @@ class MainActivity : ComponentActivity() {
         }
     }
     private fun renderDownloadRows(jobs: List<Episode>) {
-        pendingSync = jobs.any { it.pending }
-        handler.removeCallbacks(tick)
-        if (resumed && page == "downloads" && (running || pendingSync)) handler.postDelayed(tick, if (running) 1000 else 5000)
-        val stamp = downloadFilter + jobs.joinToString { "${it.key}:${it.state}:${it.bytes}:${it.position}:${it.sync}:${it.error}" } + group + running + prefs.paused
-        if (stamp == signature) return
-        signature = stamp
-        val scroll = (content.getChildAt(0) as? ScrollView)?.scrollY ?: (nativeScroll["downloads"]?:0)
-        val layout = container()
-        val count = jobs.count { it.state == "done" }
-        layout.addView(label("Descargas",36,PAPER,true))
-        layout.addView(label("Tus episodios, donde quieras",16,MUTED))
-        val used=jobs.sumOf{it.bytes}
+        pendingSync=jobs.any{it.pending};handler.removeCallbacks(tick)
+        if(resumed&&page=="downloads"&&(running||pendingSync))handler.postDelayed(tick,if(running)1000 else 5000)
+        val created=downloadsPanel==null||downloadsOwner!=prefs.owner
+        if(created){
+            downloadsOwner=prefs.owner
+            downloadsPanel=DownloadsPanel(this,DownloadActions(
+                filter={downloadFilter=it;renderDownloads()},group={group=it;renderDownloads()},
+                toggle={toggleDownload(it)},options={episodeMenu(it)},cancel={cancelDownload(it)},
+                pauseAll={if(prefs.paused){prefs.paused=false;Queue.start(this,true)}else Queue.pause(this);renderDownloads()},
+                storage={show("settings")},wifi={prefs.wifiOnly=it;Queue.start(this,true)},status={status(it)}
+            ))
+        }
+        val panel=downloadsPanel!!
+        if(panel.parent!==content){(panel.parent as? ViewGroup)?.removeView(panel);content.removeAllViews();content.addView(panel)}
         val free=runCatching{android.os.StatFs((getExternalFilesDir(null)?:filesDir).absolutePath).availableBytes}.getOrDefault(0L)
-        val storage=card(layout)
-        storage.addView(label("${if(used==0L)"0 MB" else formatBytes(used)} utilizados",20,PAPER,true))
-        storage.addView(label("${formatBytes(free)} disponibles · $count capítulos",14,MUTED))
-        storage.addView(ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal).apply{
-            max=1000;progress=(1000.0*used/(used+free).coerceAtLeast(1)).toInt();progressTintList=android.content.res.ColorStateList.valueOf(ACCENT)
-        })
-        storage.addView(button("Administrar almacenamiento  →",false){show("settings")})
-        val filters=LinearLayout(this).apply{isBaselineAligned=false;setPadding(0,dp(16),0,dp(8))}
-        listOf("all" to "Todas","active" to "En curso","done" to "Completadas").forEach{(key,name)->
-            filters.addView(button(name,downloadFilter==key){downloadFilter=key;signature="";renderDownloads()}.apply{maxLines=2;ellipsize=android.text.TextUtils.TruncateAt.END},LinearLayout.LayoutParams(0,-1,1f).apply{rightMargin=dp(5)})
-        }
-        layout.addView(filters)
-        layout.addView(button(if(prefs.paused)"Continuar descargas" else "Pausar descargas",false){
-            if(prefs.paused){prefs.paused=false;Queue.start(this,true)}else Queue.pause(this)
-            signature="";renderDownloads()
-        })
-        val visible=jobs.filter{downloadFilter=="all" || if(downloadFilter=="done")it.state=="done" else it.state!="done"}
-        if (prefs.owner <= 0) layout.addView(label("Inicia sesión en el catálogo. Tus descargas se guardarán separadas por cuenta.", 16))
-        else if (jobs.isEmpty()) layout.addView(label("Tu próxima historia puede viajar contigo. Abre un anime en Catálogo y pulsa «Capítulos para llevar».", 18))
-        else if (group == null) {
-            visible.groupBy { it.slug }.forEach { (slug, rows) ->
-                val card = card(layout)
-                val row=LinearLayout(this).apply{gravity=android.view.Gravity.CENTER_VERTICAL}
-                val art=ImageView(this).apply{setImageResource(R.mipmap.ic_launcher);scaleType=ImageView.ScaleType.CENTER_CROP;clipToOutline=true;background=outlined(SURFACE,dp(12).toFloat());contentDescription=null}
-                row.addView(art,LinearLayout.LayoutParams(dp(66),dp(80)).apply{rightMargin=dp(12)})
-                CoverArt.show(art,rows.first().payload.optString("cover"))
-                row.addView(label(rows.first().title,21,PAPER,true),LinearLayout.LayoutParams(0,-2,1f));card.addView(row)
-                card.addView(label("${rows.count { it.state == "done" }} de ${rows.size} guardados · ${rows.count { it.watched }} vistos", 15, MUTED))
-                val active = rows.firstOrNull { it.state in setOf("downloading", "retry", "failed") }
-                if (active != null) {
-                    card.addView(label("Cap. ${active.number} · ${status(active)}",14,if(active.state=="failed")ACCENT else MUTED))
-                    if(active.total>0)card.addView(ProgressBar(this,null,android.R.attr.progressBarStyleHorizontal).apply{max=1000;progress=(1000.0*active.bytes/active.total).toInt().coerceIn(0,1000);progressTintList=android.content.res.ColorStateList.valueOf(ACCENT)})
-                }
-                card.addView(button("Ver capítulos  →", false) { group = slug; signature = ""; renderDownloads() })
+        panel.submit(DownloadSnapshot(prefs.owner,jobs,downloadFilter,group,running,prefs.paused,prefs.wifiOnly,free))
+        if(created)panel.restorePosition(nativeScroll["downloads"]?:0)
+    }
+    private fun toggleDownload(ep:Episode){
+        if(ep.owner!=prefs.owner)return
+        if(ep.state=="done"){
+            Store(this).use{store->
+                if(!store.video(ep).exists()||store.video(ep).length()!=ep.total){store.update(ep.key,ep.owner,"state" to "failed","error" to "El archivo ya no está en el dispositivo.");renderDownloads()}
+                else {web.onPause();startActivity(Intent(this,PlayerActivity::class.java).putExtra("key",ep.key).putExtra("owner",ep.owner))}
             }
-        } else {
-            layout.addView(button("‹ Todos los animes", false) { group = null; signature = ""; renderDownloads() })
-            val selected = visible.filter { it.slug == group }.sortedBy { it.number.toDoubleOrNull() }
-            layout.addView(label(selected.firstOrNull()?.title.orEmpty(), 25, PAPER, true))
-            Store(this).use { store ->
-                selected.forEach { ep ->
-                    val card = card(layout)
-                    card.addView(label("Capítulo ${ep.number} · ${ep.language}", 18, PAPER, true))
-                    card.addView(label(status(ep), 14, if (ep.state == "done") MINT else MUTED))
-                    if (ep.total > 0 && ep.state != "done") card.addView(ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply { max = 1000; progress = (1000.0 * ep.bytes / ep.total).toInt().coerceIn(0,1000); progressTintList = android.content.res.ColorStateList.valueOf(ACCENT) })
-                    if (ep.error.isNotBlank()) card.addView(label(ep.error, 14, ACCENT))
-                    if (ep.watched) card.addView(label("✓ Visto · ${ep.sync.ifBlank { if (ep.pending) "MAL pendiente" else "guardado en este dispositivo" }}", 14, MINT))
-                    val actions = LinearLayout(this)
-                    actions.addView(button(if (ep.state == "done") "▶ Ver" else if (ep.state == "paused") "Continuar" else if (ep.state == "failed") "Reintentar" else "Pausar", ep.state == "done") {
-                        if (ep.state == "done") {
-                            if (!store.video(ep).exists() || store.video(ep).length() != ep.total) { Store(this).use { it.update(ep.key, ep.owner, "state" to "failed", "error" to "El archivo ya no está en el dispositivo.") }; signature = ""; renderDownloads() }
-                            else { web.onPause(); startActivity(Intent(this, PlayerActivity::class.java).putExtra("key", ep.key).putExtra("owner", ep.owner)) }
-                        } else {
-                            Store(this).use { it.update(ep.key, ep.owner, "state" to if (ep.state in setOf("paused", "failed")) "queued" else "paused", "attempts" to 0, "error" to "") }
-                            Queue.start(this); signature = ""; renderDownloads()
+        }else{
+            Store(this).use{it.update(ep.key,ep.owner,"state" to if(ep.state in setOf("paused","failed")||prefs.paused)"queued" else "paused","attempts" to 0,"error" to "")}
+            if(prefs.paused)prefs.paused=false
+            Queue.start(this);renderDownloads()
+        }
+    }
+    private fun cancelDownload(ep:Episode){
+        if(ep.owner!=prefs.owner)return
+        AlertDialog.Builder(this).setTitle("¿Cancelar el capítulo ${ep.number}?").setMessage("Se eliminará el archivo parcial de esta descarga. Los capítulos terminados se conservan.")
+            .setNegativeButton("Conservar",null).setPositiveButton("Cancelar descarga"){_,_->
+                val owner=ep.owner
+                queries.execute{
+                    val result=runCatching{
+                        Store(this).use{store->val fresh=store.get(ep.key,owner)?:return@use;check(fresh.state!="done"){"El capítulo ya terminó. Puedes eliminarlo desde sus opciones."};store.update(ep.key,owner,"state" to "paused","speed" to 0.0)}
+                        WorkManager.getInstance(this).cancelUniqueWork("downloads").result.get()
+                        java.io.FileOutputStream(java.io.File(filesDir,"downloads.lock"),true).channel.use{channel->
+                            var lock:java.nio.channels.FileLock?=null;var attempts=0
+                            while(lock==null&&attempts++<150){lock=try{channel.tryLock()}catch(_:java.nio.channels.OverlappingFileLockException){null};if(lock==null)Thread.sleep(100)}
+                            val held=lock?:error("La descarga quedó pausada. Vuelve a intentar eliminarla desde sus opciones.")
+                            try{check(prefs.owner==owner){"La cuenta cambió."};Store(this).use{it.removeVideo(ep)}}finally{held.release()}
                         }
-                    }, LinearLayout.LayoutParams(0, dp(48), 1f))
-                    actions.addView(button("•••", false) { episodeMenu(ep) }, LinearLayout.LayoutParams(dp(56), dp(48)))
-                    card.addView(actions)
+                    }
+                    if(prefs.owner==owner&&!prefs.paused)Queue.start(this,true)
+                    runOnUiThread{if(!isDestroyed){result.onFailure{toast(it.message.orEmpty())};if(page=="downloads")renderDownloads()}}
                 }
-            }
-        }
-        if(jobs.isNotEmpty()&&visible.isEmpty())layout.addView(label("No hay capítulos en este filtro.",16,MUTED))
-        layout.addView(toggleControl("Descargar solo con Wi-Fi",prefs.wifiOnly){checked->prefs.wifiOnly=checked;Queue.start(this@MainActivity,true)})
-        (content.getChildAt(0) as? ScrollView)?.post { (content.getChildAt(0) as? ScrollView)?.scrollTo(0, scroll) }
+            }.show()
     }
     private fun status(ep: Episode): String = when (ep.state) {
         "done" -> "Guardado · ${formatBytes(ep.total)}${if (ep.duration > 0) " · ${ep.duration / 60000} min" else ""}"
@@ -520,6 +509,7 @@ class MainActivity : ComponentActivity() {
             layout.addView(toggleControl(text,value,change))
         }
         toggle("Descargar solo por Wi-Fi", prefs.wifiOnly) { prefs.wifiOnly = it; Queue.start(this, true) }
+        toggle("Pausar todas las descargas",prefs.paused){paused->if(paused)Queue.pause(this)else{prefs.paused=false;Queue.start(this,true)}}
         toggle("Eliminar videos vistos al cerrar el reproductor", prefs.cleanWatched) { prefs.cleanWatched = it }
         layout.addView(label("Calidad original de MP4Upload. El idioma se toma de tu selección en el reproductor o las preferencias web; nunca se sustituye silenciosamente.", 14, MUTED))
         layout.addView(label("MyAnimeList", 22, PAPER, true))
@@ -555,7 +545,7 @@ class MainActivity : ComponentActivity() {
     private fun toast(message: String) { Toast.makeText(this, message, Toast.LENGTH_LONG).show() }
     private fun suspendWeb() { web.evaluateJavascript("window.dispatchEvent(new Event('season-native-suspend'))",null); web.onPause() }
     private fun resumeWeb() { web.onResume(); web.evaluateJavascript("window.dispatchEvent(new Event('season-native-resume'))",null) }
-    override fun onResume() { super.onResume(); resumed = true; if (::web.isInitialized && page == "web") resumeWeb(); signature = ""; if (page == "downloads") renderDownloads() }
+    override fun onResume() { super.onResume(); resumed = true; if (::web.isInitialized && isWebPage()) resumeWeb(); signature = ""; if (page == "downloads") renderDownloads() }
     override fun onPause() { resumed = false; handler.removeCallbacks(tick); if (::web.isInitialized) suspendWeb(); super.onPause() }
     override fun onDestroy() { handler.removeCallbacksAndMessages(null); queries.execute { queryStore?.close() }; queries.shutdown(); webTabs.values.forEach{it.destroy()}; super.onDestroy() }
 }

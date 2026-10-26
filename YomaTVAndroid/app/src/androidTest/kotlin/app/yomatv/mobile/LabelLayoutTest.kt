@@ -99,10 +99,11 @@ class LabelLayoutTest {
           if(!window.layoutReady||cards.length!==8)errors.push('Fixture not ready');
           if(document.documentElement.scrollWidth>document.documentElement.clientWidth+1)errors.push('Page horizontal overflow');
           for(const [i,card]of cards.entries()){
-            const r=box(card),title=card.querySelector('.mal-title'),meta=card.querySelector('.card-meta'),actions=card.querySelector('.mal-card-actions');
-            for(const el of[title,meta,actions,...actions.children]){const q=box(el);if(q.left<r.left-1||q.right>r.right+1)errors.push('Card '+i+' text outside card');}
-            if(box(meta).top<box(title).bottom-1||box(actions).top<box(meta).bottom-1)errors.push('Card '+i+' overlapping rows');
-            let bottom=0;for(const button of actions.children){const q=box(button);if(q.top<bottom-1)errors.push('Card '+i+' overlapping actions');bottom=q.bottom;const range=document.createRange();range.selectNodeContents(button);for(const text of range.getClientRects())if(text.left<q.left-1||text.right>q.right+1||text.bottom>q.bottom+1)errors.push('Card '+i+' clipped action text');}
+            if(!card.querySelector('.poster[data-open],.poster[data-mal-edit]'))errors.push('Missing card action');
+            const r=box(card),title=card.querySelector('.mal-title'),meta=card.querySelector('.mal-home-meta')||card.querySelector('.card-meta'),actions=card.querySelector('.mal-card-actions');
+            for(const el of[title,meta,actions,...actions.children].filter(el=>el.getClientRects().length)){const q=box(el);if(q.left<r.left-1||q.right>r.right+1)errors.push('Card '+i+' text outside card');}
+            if(box(meta).top<box(title).bottom-1||(actions.getClientRects().length&&box(actions).top<box(meta).bottom-1))errors.push('Card '+i+' overlapping rows');
+            let bottom=0;for(const button of [...actions.children].filter(el=>el.getClientRects().length)){const q=box(button);if(q.top<bottom-1)errors.push('Card '+i+' overlapping actions');bottom=q.bottom;const range=document.createRange();range.selectNodeContents(button);for(const text of range.getClientRects())if(text.left<q.left-1||text.right>q.right+1||text.bottom>q.bottom+1)errors.push('Card '+i+' clipped action text');}
           }
           const search=document.querySelector('.search-box'),input=search.querySelector('input'),icon=search.querySelector('svg'),a=box(input),b=box(icon);
           if(Math.abs((a.top+a.bottom-b.top-b.bottom)/2)>1)errors.push('Search icon is not vertically centered');

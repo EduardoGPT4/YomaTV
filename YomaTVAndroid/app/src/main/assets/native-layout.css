@@ -55,3 +55,7 @@
   .yoma-native .field-pair {grid-template-columns:minmax(0,1fr)}
   .yoma-native .section-heading>div {flex-basis:100%}
 }
+
+/* The home rails display three compact posters, while the full catalog keeps two. */
+.yoma-native .personal-cards>.anime-card,.yoma-native .personal-cards>.anime-card:nth-child(n+5),.yoma-native .yoma-horizontal>.anime-card{flex-basis:calc((100% - 26px)/3);width:calc((100% - 26px)/3)}
+.yoma-native .personal-cards .card-title{font-size:15px}.yoma-native .personal-cards .card-meta{font-size:14px}

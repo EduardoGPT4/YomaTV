@@ -169,7 +169,7 @@ function schedule() {
       (!day || a.weekday === day) &&
       a.title.toLocaleLowerCase().includes(search.toLocaleLowerCase())
   );
-  if(typeof yomaNative==='function'&&yomaNative())return yomaScheduleView(rows);
+  if(typeof yomaNative==='function'&&yomaNative())return yomaScheduleView();
   return (
     title(
       'DEL LUNES AL DOMINGO',

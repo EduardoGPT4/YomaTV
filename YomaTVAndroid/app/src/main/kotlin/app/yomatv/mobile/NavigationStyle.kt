@@ -31,7 +31,9 @@ fun outlined(color: Int, radius: Float) = GradientDrawable().apply {
 }
 
 /** Vector icons stay sharp and do not depend on the device's font or emoji set. */
-class NavGlyph(context: Context, private val kind: String): View(context) {
+class NavGlyph(context: Context, kind: String): View(context) {
+    var kind:String=kind
+        set(value){if(field!=value){field=value;invalidate()}}
     var tint: Int = PAPER
         set(value){field=value;invalidate()}
     private val pen=Paint(Paint.ANTI_ALIAS_FLAG).apply {style=Paint.Style.STROKE;strokeWidth=1.6f;strokeCap=Paint.Cap.ROUND;strokeJoin=Paint.Join.ROUND}
@@ -39,6 +41,11 @@ class NavGlyph(context: Context, private val kind: String): View(context) {
         super.onDraw(canvas);canvas.save();canvas.scale(width/24f,height/24f);pen.color=tint
         val path=Path()
         when(kind){
+            "pause"->{canvas.drawLine(8f,5f,8f,19f,pen);canvas.drawLine(16f,5f,16f,19f,pen)}
+            "play"->{path.moveTo(8f,4f);path.lineTo(20f,12f);path.lineTo(8f,20f);path.close();canvas.drawPath(path,pen)}
+            "close"->{canvas.drawLine(6f,6f,18f,18f,pen);canvas.drawLine(18f,6f,6f,18f,pen)}
+            "back"->{path.moveTo(14f,5f);path.lineTo(7f,12f);path.lineTo(14f,19f);canvas.drawPath(path,pen)}
+            "wifi"->{canvas.drawArc(2f,5f,22f,23f,222f,96f,false,pen);canvas.drawArc(6f,10f,18f,22f,224f,92f,false,pen);canvas.drawCircle(12f,19f,1f,pen)}
             "notifications"->{path.moveTo(5f,17f);path.lineTo(7f,14f);path.lineTo(7f,9f);path.cubicTo(7f,2f,17f,2f,17f,9f);path.lineTo(17f,14f);path.lineTo(19f,17f);path.close();canvas.drawPath(path,pen);canvas.drawLine(10f,21f,14f,21f,pen)}
             "account"->{canvas.drawCircle(12f,8f,3f,pen);path.moveTo(5f,21f);path.cubicTo(5f,12f,19f,12f,19f,21f);canvas.drawPath(path,pen)}
             "catalog"->{path.moveTo(3f,10f);path.lineTo(12f,3f);path.lineTo(21f,10f);path.lineTo(21f,21f);path.lineTo(15f,21f);path.lineTo(15f,14f);path.lineTo(9f,14f);path.lineTo(9f,21f);path.lineTo(3f,21f);path.close();canvas.drawPath(path,pen)}
