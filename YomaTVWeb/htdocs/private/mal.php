@@ -6,6 +6,7 @@ if (!defined('SEASON_BOOTSTRAPPED')) {
 }
 require __DIR__ . '/mal-http.php';
 require __DIR__ . '/mal-safety.php';
+require __DIR__ . '/mal-avatar.php';
 
 function mal_encrypt(array $tokens, int $user): string
 {
@@ -57,10 +58,11 @@ function mal_status(PDO $db): array
 {
   $row = sql(
     $db,
-    'SELECT mal_user_id,mal_name,connected_at,checked_at,needs_auth FROM sa1_mal_connections WHERE user_id=?',
+    "SELECT c.mal_user_id,c.mal_name,c.connected_at,c.checked_at,c.needs_auth,d.payload AS avatar_payload FROM sa1_mal_connections c LEFT JOIN sa1_personal_data d ON d.user_id=c.user_id AND d.kind='mal_avatar' AND d.item_key='profile' WHERE c.user_id=?",
     [member()],
   )->fetch();
   $ready = mal_ready();
+  $avatar=$row?mal_avatar_entry($row['avatar_payload'],(int)$row['mal_user_id']):null;
   return [
     'configured' => $ready,
     'connected' => $ready && (bool) $row && !(bool) $row['needs_auth'],
@@ -69,6 +71,8 @@ function mal_status(PDO $db): array
       ? [
         'id' => (int) $row['mal_user_id'],
         'name' => $row['mal_name'],
+        'picture' => $avatar['picture'],
+        'avatar_next_refresh' => $avatar['next_refresh'],
         'url' =>
           'https://myanimelist.net/profile/' . rawurlencode($row['mal_name']),
         'connected_at' => (int) $row['connected_at'],
@@ -154,7 +158,7 @@ function mal_profile_data(array $response): array
   ) {
     throw new MalRemoteError(502);
   }
-  return ['id' => $id, 'name' => $name];
+  return ['id' => $id, 'name' => $name, 'picture' => mal_avatar_url($response['picture']??'')];
 }
 
 function mal_complete(PDO $db, array $query): string
@@ -257,6 +261,7 @@ function mal_complete(PDO $db, array $query): string
         'refresh_lock_until',
       ],
     );
+    mal_save_avatar($db,$profile['id'],$profile['picture']);
     log_event(
       $db,
       uid(),
@@ -392,7 +397,7 @@ function dispatch_mal(PDO $db, string $action, array $input): ?array
   if (
     !in_array(
       $action,
-      ['mal_connect', 'mal_disconnect', 'mal_profile', 'mal_list'],
+      ['mal_connect', 'mal_disconnect', 'mal_profile', 'mal_list', 'mal_avatar'],
       true,
     )
   ) {
@@ -402,6 +407,7 @@ function dispatch_mal(PDO $db, string $action, array $input): ?array
   if ($action === 'mal_connect') {
     return ['authorization_url' => mal_begin($db)];
   }
+  if ($action === 'mal_avatar') return mal_refresh_avatar($db);
   if ($action === 'mal_disconnect') {
     sql($db,'DELETE FROM sa1_oauth_attempts WHERE user_id=?',[member()]);
     unset($_SESSION['mal_oauth']);
@@ -409,6 +415,7 @@ function dispatch_mal(PDO $db, string $action, array $input): ?array
     if ($identity) upsert($db, 'sa1_mal_identity', ['user_id','mal_user_id'],
       [['user_id'=>uid(),'mal_user_id'=>$identity]], ['user_id'], ['mal_user_id']);
     sql($db, 'DELETE FROM sa1_mal_connections WHERE user_id=?', [uid()]);
+    sql($db,"DELETE FROM sa1_personal_data WHERE user_id=? AND kind='mal_avatar'",[uid()]);
     $event = log_event($db, uid(), 'MyAnimeList desvinculado de esta web.');
     return [
       'mal' => mal_status($db),
@@ -436,6 +443,7 @@ function dispatch_mal(PDO $db, string $action, array $input): ?array
           409,
         );
       }
+      mal_save_avatar($db,$profile['id'],$profile['picture']);
       return [
         'mal' => mal_status($db),
         'message' => 'Conexión con MyAnimeList comprobada.',

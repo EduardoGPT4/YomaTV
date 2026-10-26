@@ -249,7 +249,7 @@ function render() {
   $('#breadcrumb').textContent = TITLES[view];
   $('#season-label').textContent = state.season;
   $('#account').innerHTML =
-    `<span class="avatar">${e((state.user?.name || 'S').slice(0, 1).toUpperCase())}</span><span>${e(state.user?.name || 'Mi cuenta')}</span>`;
+    `${typeof YomaAvatar==='undefined'?`<span class="avatar">${e((state.user?.name || 'S').slice(0, 1).toUpperCase())}</span>`:YomaAvatar.html(state.user?.name)}<span>${e(state.user?.name || 'Mi cuenta')}</span>`;
   $('#queue-badge').textContent = state.queue_totals?.queued ?? activeJobs().length;
   document
     .querySelectorAll('[data-view]')

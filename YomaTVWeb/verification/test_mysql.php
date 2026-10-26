@@ -28,6 +28,11 @@ personal_store($db,'intro','naruto',['start'=>15,'end'=>100]);
 mysql_check((float)personal_export($db)['intro'][0]['data']['end']===100.0,'mysql_personal_export_includes_playback_tools');
 $cold=catalog($db,[]);$warm=catalog($db,['year'=>'2002']);mysql_check($cold['all_total']>=4485&&is_array($warm['genres']),'mysql_catalog_facets_and_cache_preserve_full_catalog');
 $recommendations=player_recommendations($db,find_anime($db,'naruto'));mysql_check(count($recommendations['genres'])>0&&count($recommendations['saga'])>0,'mysql_player_recommendations_use_public_genres_and_names');
+sql($db,'INSERT INTO sa1_mal_connections(user_id,mal_user_id,mal_name,token_cipher,expires_at,connected_at,checked_at) VALUES(?,?,?,?,?,?,?)',[uid(),12345,'AvatarQA','fixture-only',0,time(),time()]);
+$avatar='https://cdn.myanimelist.net/images/userimages/12345.jpg';mal_save_avatar($db,12345,$avatar);
+mysql_check(mal_status($db)['profile']['picture']===$avatar&&!mal_save_avatar($db,12345,null)['claimed'],'mysql_avatar_cache_and_refresh_lease');
+try{mal_save_avatar($db,67890,$avatar);mysql_check(false,'mysql_avatar_identity_guard');}catch(WebError $error){mysql_check($error->status===409,'mysql_avatar_identity_guard');}
+sql($db,"DELETE FROM sa1_personal_data WHERE user_id=? AND kind='mal_avatar'",[uid()]);sql($db,'DELETE FROM sa1_mal_connections WHERE user_id=?',[uid()]);
 $plans=query_plans($db);foreach(['history','expired_limits'] as $name)mysql_check((bool)array_filter($plans[$name],static fn($p)=>!empty($p['key'])),'mysql_index_plan_'.$name);
 sql($db,'INSERT INTO sa1_users(id,name,email,password_hash,created_at) VALUES(?,?,?,?,?)',[42,'Deleted QA','deleted-mysql@example.test','fixture',1]);sql($db,'DELETE FROM sa1_users WHERE id=?',[42]);
 $stream=tmpfile();$password='MySQL-Backup-Fixture-2026';$written=backup_write($db,$stream,$password);

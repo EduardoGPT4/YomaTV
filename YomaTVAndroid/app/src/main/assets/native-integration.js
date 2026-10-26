@@ -35,7 +35,8 @@
   function update() {
     if (suspended || typeof state === 'undefined' || !state) return;
     if(!nativeRendered&&typeof render==='function'){nativeRendered=true;render();}
-    const auth = JSON.stringify({type:'auth',owner:Number(state.user?.id)||0,name:String(state.user?.name||''),mal:Boolean(state.mal?.connected)});
+    const mal=typeof YomaAvatar==='undefined'?state.mal:YomaAvatar.status();
+    const auth = JSON.stringify({type:'auth',owner:Number(state.user?.id)||0,name:String(state.user?.name||''),mal:Boolean(mal?.connected),avatar:typeof YomaAvatar==='undefined'?'':YomaAvatar.url()});
     if (auth !== previousAuth) { previousAuth = auth; YomaAndroid.postMessage(auth); }
     const route=location.hash||'#discover';if(route!==previousRoute){previousRoute=route;post({type:'navigation',route});}
     const transport = document.querySelector('.watch-actions')||document.querySelector('.watch-transport');

@@ -42,6 +42,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var nav: LinearLayout
     private lateinit var title: TextView
     private lateinit var header: LinearLayout
+    private lateinit var accountAvatar: AccountAvatar
     private lateinit var prefs: Prefs
     private var page = "web"
     private var activeTab = "catalog"
@@ -51,6 +52,7 @@ class MainActivity : ComponentActivity() {
     private val nativeScroll = mutableMapOf<String, Int>()
     private var downloadFilter = "all"
     private var userName = ""
+    private var userPicture = ""
     private var malConnected = false
     private var group: String? = null
     private var signature = ""
@@ -96,7 +98,11 @@ class MainActivity : ComponentActivity() {
             header.addView(item,LinearLayout.LayoutParams(dp(44),dp(44)).apply{leftMargin=dp(9)})
         }
         headerAction("notifications","Notificaciones"){webRoute("notifications")}
-        headerAction("account","Mi cuenta"){openWebAccount()}
+        accountAvatar=AccountAvatar(this).apply{
+            contentDescription="Mi cuenta";isFocusable=true;isClickable=true
+            setOnClickListener{openWebAccount()}
+        }
+        header.addView(accountAvatar,LinearLayout.LayoutParams(dp(44),dp(44)).apply{leftMargin=dp(9)})
         root.addView(header)
         content = FrameLayout(this)
         root.addView(content, LinearLayout.LayoutParams(-1, 0, 1f))
@@ -229,6 +235,9 @@ class MainActivity : ComponentActivity() {
                 readyTabs.add(key); if(source === web)webReady = true
                 userName=message.optString("name");malConnected=message.optBoolean("mal")
                 val owner = message.optLong("owner").coerceAtLeast(0)
+                userPicture=if(owner>0&&malConnected)AccountAvatar.picture(message.optString("avatar"))else ""
+                accountAvatar.bind(if(owner>0)userName else "",userPicture)
+                content.findViewWithTag<AccountAvatar>("more-account-avatar")?.bind(if(owner>0)userName else "",userPicture)
                 if (owner != prefs.owner) {
                     WorkManager.getInstance(this).cancelUniqueWork("downloads"); prefs.owner = owner; group = null; signature = ""
                     // Hidden tabs must not restore another account's cached library.
@@ -331,7 +340,10 @@ class MainActivity : ComponentActivity() {
         val layout=container()
         layout.addView(label("Más",36,PAPER,true));layout.addView(label("Tu espacio en YomaTV",16,MUTED))
         val profile=card(layout)
-        profile.addView(label(if(prefs.owner>0)"Hola, ${userName.ifBlank { "de nuevo" }}" else "Tu próxima historia empieza aquí",22,PAPER,true))
+        val identity=LinearLayout(this).apply{gravity=android.view.Gravity.CENTER_VERTICAL}
+        identity.addView(AccountAvatar(this).apply{tag="more-account-avatar";bind(if(prefs.owner>0)userName else "",userPicture)},LinearLayout.LayoutParams(dp(60),dp(60)).apply{rightMargin=dp(14)})
+        identity.addView(label(if(prefs.owner>0)"Hola, ${userName.ifBlank { "de nuevo" }}" else "Tu próxima historia empieza aquí",22,PAPER,true),LinearLayout.LayoutParams(0,-2,1f))
+        profile.addView(identity)
         profile.addView(button(if(prefs.owner>0)"Ver mi cuenta  →" else "Iniciar sesión  →",false){openWebAccount()})
         fun section(title:String, entries:List<Triple<String,String,String>>) {
             layout.addView(label(title,14,MUTED));val box=card(layout)

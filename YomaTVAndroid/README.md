@@ -1,6 +1,8 @@
 # YomaTV Android
 
-Aplicación Android 8 o posterior, versión 1.1.3. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+Aplicación Android 8 o posterior, versión 1.1.4. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+
+La revisión 1.1.4 usa el avatar de tu cuenta MyAnimeList en la cabecera, Más y la cuenta web. Consulta [los cambios y las pruebas](YOMATV-1.1.4.md).
 
 La revisión 1.1.3 corrige la alineación de labels, navegación inferior, carruseles MAL y buscadores. Consulta [los cambios y las pruebas de texto](YOMATV-1.1.3.md).
 

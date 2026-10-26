@@ -37,7 +37,9 @@ class Handler(BaseHTTPRequestHandler):
             return self.respond({'error':'invalid_token'},401)
         if STATE['mode']=='unauthorized' and self.headers.get('Authorization')=='Bearer mock-access-token':
             return self.respond({'error':'invalid_token'},401)
-        if url.path=='/profile': return self.respond(STATE.get('profile',{'id':12345,'name':'LocalMAL_Test'}))
+        if url.path=='/profile':
+            STATE['profile_calls']=STATE.get('profile_calls',0)+1
+            return self.respond(STATE.get('profile',{'id':12345,'name':'LocalMAL_Test'}))
         if url.path.startswith('/anime:'):
             id=int(url.path.split(':')[1])
             status=STATE['updates'].get(str(id),{'status':'watching','score':8,'num_episodes_watched':5})

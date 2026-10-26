@@ -30,7 +30,9 @@ def dbexec(query,args=()):
 def user(c):return c.state['user']['id']
 
 def main():
-    control(mode='normal',refreshes=0)
+    picture='https://cdn.myanimelist.net/images/userimages/12345.jpg?t=1'
+    profile={'id':12345,'name':'LocalMAL_Test','picture':picture}
+    control(mode='normal',refreshes=0,profile=profile,profile_calls=0)
     c=test_web.Client()
     c.call('mal_connect',expected=401)
     c.call('register',name='MAL prueba local',email='mal-'+secrets.token_hex(5)+'@example.test',password='Local-MAL-Test-8096')
@@ -48,6 +50,29 @@ def main():
     assert 'mock-access-token' not in row and 'mock-refresh-token' not in row
     account=c.call('account',get=True)['account']['mal']
     assert account['connected'] and account['profile']['name']=='LocalMAL_Test'
+    assert account['profile']['picture']==picture
+    before_avatar=control()['profile_calls']
+    assert c.call('mal_avatar')['mal']['profile']['picture']==picture
+    assert control()['profile_calls']==before_avatar
+    # Existing accounts created before this feature automatically fill their avatar cache.
+    dbexec("DELETE FROM sa1_personal_data WHERE user_id=? AND kind='mal_avatar'",(user(c),))
+    assert c.call('mal_avatar')['mal']['profile']['picture']==picture
+    assert control()['profile_calls']==before_avatar+1
+    def expire_avatar():
+        raw=dbexec("SELECT payload FROM sa1_personal_data WHERE user_id=? AND kind='mal_avatar'",(user(c),))[0][0]
+        entry=json.loads(raw);entry['next_refresh']=0
+        dbexec("UPDATE sa1_personal_data SET payload=? WHERE user_id=? AND kind='mal_avatar'",(json.dumps(entry),user(c)))
+    expire_avatar();control(mode='offline')
+    cached=c.call('mal_avatar')['mal'];assert cached['connected'] and cached['profile']['picture']==picture
+    assert cached['profile']['avatar_next_refresh']>0
+    control(mode='normal',profile={**profile,'picture':'https://cdn.myanimelist.net@evil.example/a.jpg'})
+    assert c.call('mal_profile')['mal']['profile']['picture']==''
+    control(profile={**profile,'picture':None});assert c.call('mal_profile')['mal']['profile']['picture']==''
+    control(profile=profile);assert c.call('mal_profile')['mal']['profile']['picture']==picture
+    expire_avatar();control(profile={**profile,'id':67890,'picture':'https://cdn.myanimelist.net/images/userimages/67890.jpg'})
+    assert c.call('mal_avatar')['mal']['profile']['picture']==picture
+    control(profile=profile)
+    checks.append('profile_avatar_cached_backfilled_and_isolated_with_safe_fallback_and_retry_lease')
     for action,kwargs in [('state',{}),('account',{}),('mal_profile',{})]:
         payload=c.call(action,get=action!='mal_profile',**kwargs)
         encoded=json.dumps(payload)
@@ -95,6 +120,7 @@ def main():
     q=flow(other);assert 'mal=connected' in callback(other,q)
     other.call('mal_disconnect');other.call('mal_disconnect')
     assert not dbexec('SELECT * FROM sa1_mal_connections WHERE user_id=?',(user(other),))
+    assert not dbexec("SELECT * FROM sa1_personal_data WHERE user_id=? AND kind='mal_avatar'",(user(other),))
     assert dbexec('SELECT * FROM sa1_mal_connections WHERE user_id=?',(user(c) if c.state['user'] else dbexec('SELECT user_id FROM sa1_mal_connections')[0][0],))
     checks.append('disconnect_is_idempotent_and_scoped')
     other_id=user(other);q=flow(other);assert 'mal=connected' in callback(other,q)

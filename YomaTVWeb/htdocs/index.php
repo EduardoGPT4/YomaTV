@@ -55,6 +55,7 @@ $csrf = htmlspecialchars($_SESSION['csrf'], ENT_QUOTES, 'UTF-8');
   <script src="assets/state-client.js?v=<?= filemtime(
     __DIR__ . '/assets/state-client.js',
   ) ?>" defer></script>
+  <script src="assets/account-avatar.js?v=<?= filemtime(__DIR__.'/assets/account-avatar.js') ?>" defer></script>
   <script src="assets/queue-api.js?v=<?= filemtime(
     __DIR__ . '/assets/queue-api.js',
   ) ?>" defer></script>

@@ -97,6 +97,7 @@ async function api(
   { assignDetail = true, signal, timeout = 90000 } = {}
 ) {
   const transportEpoch = typeof SeasonTransport === 'undefined' ? 0 : SeasonTransport.epoch;
+  const avatarTicket=typeof YomaAvatar==='undefined'?null:YomaAvatar.ticket();
   const identityAction = ['login','register','logout','account_recover','account_delete'].includes(action);
   const requestDialog = typeof detailSequence === 'undefined' ? null : detailSequence;
   const requestUser = state?.user?.id || 0;
@@ -160,6 +161,7 @@ async function api(
     (requestDialog === null || requestDialog === detailSequence))
     detailState = result.detail;
   if (typeof acceptFeatureResult === 'function') acceptFeatureResult(result);
+  if (typeof YomaAvatar!=='undefined') YomaAvatar.accept(result,identityAction?YomaAvatar.ticket():avatarTicket,action);
   if (typeof acceptExperienceResult === 'function') acceptExperienceResult(result,requestUser);
   if ((result.patch || result.data) && typeof catalogPersonalChanged === 'function')
     catalogPersonalChanged();

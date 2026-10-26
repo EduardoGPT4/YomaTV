@@ -10,6 +10,7 @@ const FILES = [
   'assets/catalog.js',
   'assets/catalog-tools.js',
   'assets/account.js',
+  'assets/account-avatar.js',
   'assets/bridge.js',
   'assets/bridge-ui.js',
   'assets/downloads.js',
