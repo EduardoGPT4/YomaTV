@@ -49,7 +49,7 @@ async function refreshPlayerServers(p=playerView){
       Object.assign(p,data);
       selectPlayerServer(p,current);
       if(!current&&p.servers.length)renderPlayer();
-      else if(current){const buttons=document.querySelector('.watch-servers > div');if(buttons)buttons.innerHTML=watchServerButtons(p);}
+      else if(current){const buttons=document.querySelector('.watch-server-groups');if(buttons)buttons.innerHTML=watchServerButtons(p);}
       if(data.server_refresh?.state==='waiting')playerServerTimer=setTimeout(()=>{playerServerTimer=null;if(playerView===p&&state.user?.id===user&&view==='watch')refreshPlayerServers(p);},Math.max(1000,Math.min(3600000,data.server_refresh.retry_at*1000-Date.now()+250)));
     }
   }catch(error){if(playerView===p&&state.user?.id===user)p.server_refresh={...p.server_refresh,state:'error',message:error.message};}
@@ -60,7 +60,7 @@ async function loadCachedPlayerServers(p){
   if(playerView!==p||state.user?.id!==user)return;
   const current=p.servers[p.index];Object.assign(p,r.player_servers);selectPlayerServer(p,current);
   if(!current&&p.servers.length)renderPlayer();
-  else {const buttons=document.querySelector('.watch-servers > div');if(buttons)buttons.innerHTML=watchServerButtons(p);updateServerNotice(p);}
+  else {const buttons=document.querySelector('.watch-server-groups');if(buttons)buttons.innerHTML=watchServerButtons(p);updateServerNotice(p);}
 }
 function selectPlayerServer(p,current=null){
   const pref=p.playback?.preferences||{},rank=s=>Number(s.language===(pref.language||state.settings.language))*2+Number(s.server===(pref.server||state.settings.server));
@@ -68,7 +68,20 @@ function selectPlayerServer(p,current=null){
   if(current&&!p.servers.some(s=>s.url===current.url))p.servers.unshift(current);
   p.index=current?Math.max(0,p.servers.findIndex(s=>s.url===current.url)):0;
 }
-function watchServerButtons(p){return p.servers.map((s,i)=>`<button type="button" class="watch-server ${i===p.index?'selected':''}" data-watch-server="${i}" aria-pressed="${i===p.index}">${e(s.server)}<small>${e(s.language)}</small></button>`).join('')||'<span class="muted">Sin servidores guardados</span>';}
+function watchServerButtons(p){
+  const groups=new Map(),languages=['SUB','LAT','DUB'];
+  p.servers.forEach((server,index)=>{
+    const language=String(server.language||'OTRO').trim().toUpperCase()||'OTRO';
+    if(!groups.has(language))groups.set(language,[]);
+    groups.get(language).push({server,index});
+  });
+  const order=language=>languages.includes(language)?languages.indexOf(language):languages.length;
+  return [...groups].sort(([a],[b])=>order(a)-order(b)||a.localeCompare(b)).map(([language,servers])=>{
+    const title={SUB:'Subtitulado',LAT:'Español latino',DUB:'Doblado'}[language]||language;
+    const symbol=language==='SUB'?'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 10h2m3 0h5M7 14h6m3 0h1"/>':'<rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8"/>';
+    return `<section class="watch-server-group" aria-label="${e(title)}"><span class="watch-server-label" title="${e(title)}"><svg viewBox="0 0 24 24" aria-hidden="true">${symbol}</svg>${e(language)}</span><div class="watch-server-options">${servers.map(({server:s,index:i})=>`<button type="button" class="watch-server ${i===p.index?'selected':''}" data-watch-server="${i}" aria-label="${e(s.server)} · ${e(language)}" aria-pressed="${i===p.index}">${e(s.server)}</button>`).join('')}</div></section>`;
+  }).join('')||'<span class="muted">Sin servidores guardados</span>';
+}
 function playerMalConfirmed(p){return Boolean(p.mal?.connected&&p.mal?.linked&&p.mal?.confirmed)&&Number(p.episode.number)>=1&&Number.isInteger(Number(p.episode.number))&&(Number(p.mal?.watched)>=Number(p.episode.number)||p.watch_sync?.state==='synced'&&Number(p.watch_sync.target)>=Number(p.episode.number));}
 function updatePlayerWatchBadge(status){const badge=document.querySelector('[data-player-watch-badge]'),labels={saving:'Guardando visto…',synced:'Visto en MAL',pending:'MAL pendiente',blocked:'Revisar conexión MAL',error:'No se pudo guardar',rewatched:'Revisionado guardado'};if(badge&&labels[status]){badge.textContent=labels[status];badge.dataset.state=status;badge.hidden=false;}updateWatchPage();}
 function updateWatchPage(){

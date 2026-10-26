@@ -680,6 +680,13 @@
 .watch-servers>div{display:flex;flex-wrap:wrap;gap:8px;flex:1}
 .watch-server{display:flex;align-items:center;gap:7px;min-height:38px;padding:8px 12px;border:1px solid transparent;border-radius:8px;background:var(--surface2);color:var(--muted);font-size:14px;font-weight:600;cursor:pointer}
 .watch-server small{font-size:14px;opacity:.8}
+.watch-servers>.watch-server-groups{display:grid;grid-template-columns:minmax(0,1fr);width:100%;min-width:0;flex-basis:100%;gap:0}
+.watch-server-group{display:grid;grid-template-columns:74px minmax(0,1fr);align-items:start;gap:12px;min-width:0}
+.watch-server-group+.watch-server-group{border-top:1px solid var(--line);padding-top:14px;margin-top:14px}
+.watch-server-group>.watch-server-label{width:auto;min-height:44px;align-items:center;gap:8px;white-space:nowrap;font-size:14px;font-weight:600}
+.watch-server-group .watch-server-label svg{width:20px;height:20px;flex:none}
+.watch-server-options{display:flex;flex-wrap:wrap;gap:8px;min-width:0;align-items:start}
+.watch-server-options .watch-server{min-height:44px;max-width:100%;white-space:normal;overflow-wrap:anywhere;justify-content:center}
 .watch-server.selected{color:var(--mint);border-color:color-mix(in srgb,var(--mint) 45%,transparent);background:color-mix(in srgb,var(--mint) 10%,var(--surface))}
 .watch-external{font-size:14px;color:var(--muted);white-space:nowrap}
 .watch-manual-hint{display:flex;align-items:center;gap:7px;color:var(--muted);font-size:14px;line-height:1.7;margin:4px 0 18px}

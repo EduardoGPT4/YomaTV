@@ -1,10 +1,10 @@
 'use strict';
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
 const source=fs.readFileSync('htdocs/assets/player-view.js','utf8');
-const pending=[],calls=[],timers=new Map(),main={innerHTML:'',dataset:{}},dialog={open:false},listeners={};let timerId=0;
+const pending=[],calls=[],timers=new Map(),main={innerHTML:'',dataset:{}},groups={innerHTML:''},dialog={open:false},listeners={};let timerId=0;
 const context=vm.createContext({state:{user:{id:1},settings:{}},view:'discover',playerView:null,playerController:null,
   statsPage:null,malLibraryPage:null,location:{hash:'#discover?search=bleach'},TITLES:{discover:'Catálogo',watch:'Reproductor'},
-  document:{title:'',querySelector:s=>s==='#main'?main:s==='#dialog'?dialog:null,addEventListener:(type,fn)=>{listeners[type]=fn;}},
+  document:{title:'',querySelector:s=>s==='#main'?main:s==='#dialog'?dialog:s==='.watch-server-groups'?groups:null,addEventListener:(type,fn)=>{listeners[type]=fn;}},
   $:s=>s==='#main'?main:s==='#dialog'?dialog:{replaceChildren(){}},
   window:{addEventListener(){},scrollTo(){}},history:{pushState(_a,_b,route){context.location.hash=route;}},
   api:async(action,data)=>{calls.push([action,data]);return new Promise(resolve=>pending.push(resolve));},
@@ -52,6 +52,7 @@ function player(id){return {index:0,episode:{id,number:String(id),slug:'naruto',
   const savedHtml=main.innerHTML,oldUrl=playing.servers[0].url,update=context.refreshPlayerServers();
   pending.at(-1)({player_servers:{servers:[{server:'MP4Upload',language:'SUB',url:'https://www.mp4upload.com/embed-new123.html'}],server_refresh:{state:'fresh',can_refresh:true}}});await update;
   assert.equal(context.playerController,controller);assert.equal(main.innerHTML,savedHtml);assert.equal(playing.servers[playing.index].url,oldUrl);
+  assert(groups.innerHTML.includes('watch-server-group')&&groups.innerHTML.includes('MP4Upload'));
   context.playerController=null;
   checks.push('quota_refresh_uses_one_cancellable_timer_and_never_replaces_the_active_video');
   context.playerView=player(12);const member=context.playerView;member.server_refresh={state:'stale',can_refresh:false};
@@ -76,5 +77,22 @@ function player(id){return {index:0,episode:{id,number:String(id),slug:'naruto',
   context.SeasonMobilePlayback.isMobile=()=>false;
   const desktopMarkup=context.watchPageTemplate(player(15));assert(!desktopMarkup.includes('mobile-native-player'));assert(desktopMarkup.includes('data-personal="intro"'));
   checks.push('mobile_renders_provider_controls_fullscreen_and_honest_mal_copy_without_desktop_only_actions');
+  const grouped=player(16);grouped.index=2;
+  grouped.servers=[{server:'MP4Upload',language:'DUB'},{server:'Voe',language:'SUB'},{server:'MP4Upload',language:'SUB'},{server:'Voe',language:'DUB'},{server:'Voe',language:'LAT'}];
+  const before=JSON.stringify(grouped.servers),rows=context.watchServerButtons(grouped).match(/<section class="watch-server-group"[\s\S]*?<\/section>/g);
+  assert.equal(rows.length,3);assert(rows[0].includes('>SUB</span>'));assert(rows[1].includes('>LAT</span>'));assert(rows[2].includes('>DUB</span>'));
+  assert(rows[0].includes('data-watch-server="1"')&&rows[0].includes('data-watch-server="2" aria-label="MP4Upload · SUB" aria-pressed="true"'));
+  assert(rows[2].includes('data-watch-server="0"')&&rows[2].includes('data-watch-server="3"'));
+  assert(!rows.join('').includes('<small>'));assert.equal(JSON.stringify(grouped.servers),before);
+  assert.equal((rows.join('').match(/aria-pressed="true"/g)||[]).length,1);
+  assert.equal((rows.join('').match(/data-watch-server=/g)||[]).length,grouped.servers.length);
+  context.view='watch';context.playerView=grouped;let remembered=null,renders=0;
+  context.rememberPlayerServer=(_p,index)=>remembered=index;context.renderPlayer=()=>renders++;
+  await listeners.click({target:{closest:()=>({dataset:{watchServer:'0'}})},preventDefault(){},stopImmediatePropagation(){}});
+  assert.equal(grouped.index,0);assert.equal(grouped.servers[grouped.index].language,'DUB');assert.equal(remembered,0);assert.equal(renders,1);
+  assert.equal(context.watchServerButtons({servers:[],index:0}),'<span class="muted">Sin servidores guardados</span>');
+  const escaped=context.watchServerButtons({servers:[{server:'<img onerror=x>',language:'<script>'}],index:0});assert(!escaped.includes('<img')&&!escaped.includes('<script>'));
+  assert.equal((context.watchServerButtons(player(17)).match(/watch-server-group"/g)||[]).length,1);
+  checks.push('audio_rows_preserve_server_indices_selection_and_click_target_with_no_duplicate_buttons_or_empty_rows');
   const result={ok:true,checks};fs.writeFileSync('verification/watch-page-ui-check.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
 })().catch(error=>{console.error(error);process.exitCode=1;});
