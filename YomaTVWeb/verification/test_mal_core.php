@@ -13,6 +13,16 @@ $_SESSION['auth_version'] = 0;
 $tokens = ['access_token' => 'mock-access-token', 'refresh_token' => 'mock-refresh-token', 'expires_at' => time() + 3600];
 $cipher = mal_encrypt($tokens, $user);
 check(mal_decrypt($cipher, $user) === $tokens, 'authenticated_encryption_roundtrip');
+$legacyKey=base64_decode(mal_require_config()['encryption_key'],true);
+$legacyIv=random_bytes(12);$legacyTag='';
+$legacyData=openssl_encrypt(json_encode($tokens,JSON_THROW_ON_ERROR),'aes-256-gcm',$legacyKey,OPENSSL_RAW_DATA,$legacyIv,$legacyTag,'SeasonAV1-MAL:'.$user);
+$legacyCipher=base64_encode($legacyIv.$legacyTag.$legacyData);
+check(mal_decrypt($legacyCipher,$user)===$tokens,'pre_yomatv_connection_remains_readable_after_rebrand');
+foreach([$user+10000,$user] as $index=>$id){
+  $bad=$index?substr($legacyCipher,0,-8).'AAAAAAAA':$legacyCipher;
+  try{mal_decrypt($bad,$id);check(false,'reject_legacy_cipher');}
+  catch(WebError $error){check($error->status===409,$index?'legacy_tampering_rejected':'legacy_cipher_bound_to_its_original_user');}
+}
 foreach ([$user + 10000, $user] as $index => $id) {
   $bad = $index === 1 ? substr($cipher, 0, -8) . 'AAAAAAAA' : $cipher;
   try { mal_decrypt($bad, $id); check(false, 'reject_cipher'); }

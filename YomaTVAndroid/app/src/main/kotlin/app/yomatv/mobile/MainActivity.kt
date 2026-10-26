@@ -346,7 +346,17 @@ class MainActivity : ComponentActivity() {
         profile.addView(identity)
         profile.addView(button(if(prefs.owner>0)"Ver mi cuenta  →" else "Iniciar sesión  →",false){openWebAccount()})
         fun section(title:String, entries:List<Triple<String,String,String>>) {
-            layout.addView(label(title,14,MUTED));val box=card(layout)
+            val key=entries.first().third
+            val section=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;tag="more-section-$key"}
+            layout.addView(section,LinearLayout.LayoutParams(-1,-2).apply{topMargin=dp(26)})
+            val heading=label(title,14,MUTED).apply{
+                tag="more-section-heading-$key";setPadding(dp(4),0,dp(4),0)
+                typeface=Typeface.create("sans-serif-medium",Typeface.NORMAL)
+                if(Build.VERSION.SDK_INT>=28)isAccessibilityHeading=true
+            }
+            section.addView(heading,LinearLayout.LayoutParams(-1,-2).apply{bottomMargin=dp(8)})
+            val box=card(section).apply{tag="more-section-card-$key"}
+            (box.layoutParams as LinearLayout.LayoutParams).topMargin=0
             entries.forEachIndexed{index,(glyph,entryLabel,route)->
                 val row=LinearLayout(this).apply{
                     gravity=android.view.Gravity.CENTER_VERTICAL;setPadding(dp(10),dp(12),dp(8),dp(12));minimumHeight=dp(56)

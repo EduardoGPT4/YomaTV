@@ -8,6 +8,9 @@ require __DIR__ . '/mal-http.php';
 require __DIR__ . '/mal-safety.php';
 require __DIR__ . '/mal-avatar.php';
 
+// Persisted authenticated-data identifiers are storage formats, not display branding.
+const MAL_TOKEN_AADS = ['YomaTV-MAL:', 'SeasonAV1-MAL:'];
+
 function mal_encrypt(array $tokens, int $user): string
 {
   $key = base64_decode(mal_require_config()['encryption_key'], true);
@@ -20,7 +23,7 @@ function mal_encrypt(array $tokens, int $user): string
     OPENSSL_RAW_DATA,
     $iv,
     $tag,
-    'YomaTV-MAL:' . $user,
+    MAL_TOKEN_AADS[0] . $user,
   );
   if ($cipher === false) {
     throw new RuntimeException('Token encryption failed.');
@@ -32,18 +35,21 @@ function mal_decrypt(string $cipher, int $user): array
 {
   $raw = base64_decode($cipher, true);
   $key = base64_decode(mal_require_config()['encryption_key'], true);
-  $plain =
-    $raw && strlen($raw) > 28
-      ? openssl_decrypt(
+  $plain = false;
+  if ($raw && strlen($raw) > 28) {
+    foreach (MAL_TOKEN_AADS as $aad) {
+      $plain = openssl_decrypt(
         substr($raw, 28),
         'aes-256-gcm',
         $key,
         OPENSSL_RAW_DATA,
         substr($raw, 0, 12),
         substr($raw, 12, 16),
-        'YomaTV-MAL:' . $user,
-      )
-      : false;
+        $aad . $user,
+      );
+      if ($plain !== false) break;
+    }
+  }
   if ($plain === false) {
     throw new WebError('Vuelve a conectar tu cuenta de MyAnimeList.', 409);
   }
