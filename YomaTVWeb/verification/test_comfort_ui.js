@@ -1,0 +1,18 @@
+'use strict';
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const app=fs.readFileSync('htdocs/assets/app.js','utf8'),features=fs.readFileSync('htdocs/assets/feature-ui.js','utf8'),tools=fs.readFileSync('htdocs/assets/catalog-tools.js','utf8');
+const e=v=>String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('"','&quot;');
+const a={slug:'test',title:'Nombre <img src=x onerror=alert(1)>',cover:'test.png',season:'invierno2026',catalog_complete:true,status:'following',synopsis:'Sinopsis <script>bad()</script>',genres:['Acción','Aventura','Fantasía','Drama'],studios:['Studio KAI'],mal_mean:8.11};
+const detail={anime:a,episodes:[{id:1,number:1}],freshness:{servers_checked:1,episodes_known:1},relations:[]};
+const ctx=vm.createContext({state:{user:{id:7,is_admin:false}},detailState:detail,e,icon:()=>'',button:(action,label)=>`<button data-action="${action}">${e(label)}</button>`,detailProgressCards:()=>'<section class="detail-progress"></section>',detailEpisodesView:()=>'<section id="detail-episodes"></section>',episodeCanPrepare:()=>false,sourceMalPanel:()=>'<button>Editar en MAL</button>',detailRelationsView:()=>''});
+vm.runInContext(features.slice(features.indexOf('function catalogMetadataInfo('),features.indexOf('function catalogPersonalSections(')),ctx);
+vm.runInContext(tools.slice(tools.indexOf('function detailDataView('),tools.indexOf('const RELATION_LABELS')),ctx);
+vm.runInContext(app.slice(app.indexOf('function animeDetailMarkup('),app.indexOf('async function queueItems(')),ctx);
+const html=ctx.animeDetailMarkup(a,detail.episodes,detail.episodes[0],'<form id="detail-form"></form>');
+assert(html.includes('Nombre &lt;img'));assert(!html.includes('<script>bad'));assert(html.includes('<details class="detail-synopsis">'));assert(!html.includes('detail-synopsis" open'));
+assert(html.indexOf('id="detail-episodes"')<html.indexOf('Mi conexión con MyAnimeList'));
+assert(html.indexOf('id="detail-episodes"')<html.indexOf('detail-data detail-fold'));
+assert(html.includes('id="detail-form"'));assert(html.includes('Ficha del anime'));assert(html.includes('Studio KAI'));assert(html.includes('Drama'));
+assert(!ctx.detailDataView(detail).includes('data-coverage'));ctx.state.user.is_admin=true;assert(ctx.detailDataView(detail).includes('<details><summary>Comprobaciones del catálogo'));
+const result={ok:true,checks:['untrusted_titles_and_synopses_stay_escaped','synopsis_starts_collapsed','episodes_precede_account_and_maintenance_tools','library_form_and_full_genres_studios_remain_available','technical_dates_are_admin_only_and_collapsed']};
+fs.writeFileSync('verification/comfort-ui-check.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));

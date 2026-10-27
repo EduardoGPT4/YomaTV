@@ -35,7 +35,7 @@ const source=fs.readFileSync('htdocs/assets/feature-ui.js','utf8');
 const detail=vm.createContext({state:{user:{id:1}},lookupAnime:()=>null,episodeDownload:ep=>({phase:ep.phase}),e:v=>String(v).replaceAll('<','&lt;'),MAL_STATUSES:{watching:'Viendo'},button:()=>''});
 vm.runInContext(source.slice(source.indexOf('function detailDownloadCounts('),source.indexOf('function catalogMetadataInfo(')),detail);
 const html=vm.runInContext("detailProgressCards({slug:'test',mal:{id:5,status:'watching',watched:3}},[{watched:true,phase:'confirmed'},{watched:true,phase:'queued'},{watched:false,phase:'downloading'},{watched:false,phase:'cancelled'}])",detail);
-assert(html.includes('2 <small>de 4 vistos'));assert(html.includes('>1</span> <small data-detail-download-label>confirmada'));assert(html.includes('2 en cola para tu PC'));assert(html.includes('3 capítulos en tu lista MAL'));
+assert(html.includes('2 <small>de 4 vistos'));assert(html.includes('>1</span> <small data-detail-download-label>guardado'));assert(html.includes('<h3>En tu PC</h3>'));assert(html.includes('2 en cola'));assert(html.includes('3 vistos en MAL'));
 assert(html.includes('aria-valuenow="2"')&&html.includes('data-mal-edit="5"'));
 checks.push('detail_summaries_derive_watched_downloaded_and_queued_counts_without_inventing_mal_progress');
 

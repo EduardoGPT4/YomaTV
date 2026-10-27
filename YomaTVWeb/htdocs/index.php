@@ -95,6 +95,8 @@ $csrf = htmlspecialchars($_SESSION['csrf'], ENT_QUOTES, 'UTF-8');
   <script src="assets/sidebar.js?v=<?= filemtime(__DIR__ . '/assets/sidebar.js') ?>" defer></script>
   <script src="assets/personal-ui.js?v=<?= filemtime(__DIR__.'/assets/personal-ui.js') ?>" defer></script>
   <link rel="stylesheet" href="assets/mobile-app.css?v=<?= filemtime(__DIR__.'/assets/mobile-app.css') ?>">
+  <link rel="stylesheet" href="assets/comfort.css?v=<?= filemtime(__DIR__.'/assets/comfort.css') ?>">
+  <script src="assets/choice-sheet.js?v=<?= filemtime(__DIR__.'/assets/choice-sheet.js') ?>" defer></script>
   <script src="assets/mobile-app.js?v=<?= filemtime(__DIR__.'/assets/mobile-app.js') ?>" defer></script>
   <script src="assets/app-downloads.js?v=<?= filemtime(__DIR__.'/assets/app-downloads.js') ?>" defer></script>
   <script src="assets/app.js?v=<?= filemtime(

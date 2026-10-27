@@ -264,19 +264,22 @@ function updateDetailProgressDownloads(episodes) {
   const node=document.querySelector('[data-detail-download-count]');if(!node)return;
   const {done,queued}=detailDownloadCounts(episodes);
   node.textContent=done;
-  document.querySelector('[data-detail-download-label]').textContent=done===1?'confirmada':'confirmadas';
-  document.querySelector('[data-detail-queued-count]').textContent=queued+' en cola para tu PC';
+  document.querySelector('[data-detail-download-label]').textContent=done===1?'guardado':'guardados';
+  document.querySelector('[data-detail-queued-count]').textContent=queued+' en cola';
 }
 function detailProgressCards(a, episodes) {
   const seen = episodes.filter(ep => ep.watched).length;
   const {done,queued} = detailDownloadCounts(episodes);
   const mal = a.mal || lookupAnime(a.slug)?.mal;
-  return `<section class="detail-progress" aria-label="Tu progreso en este anime"><article><h3>Tu avance</h3><strong>${seen} <small>de ${episodes.length} vistos</small></strong><div class="watch-progress" role="progressbar" aria-label="Capítulos vistos" aria-valuemin="0" aria-valuemax="${Math.max(1,episodes.length)}" aria-valuenow="${seen}"><span style="width:${seen/Math.max(1,episodes.length)*100}%"></span></div></article><article><h3>Descargas</h3><strong class="confirmed"><span data-detail-download-count>${done}</span> <small data-detail-download-label>${done===1?'confirmada':'confirmadas'}</small></strong><p class="queued" data-detail-queued-count>${queued} en cola para tu PC</p></article><article><h3>MyAnimeList</h3><strong>${mal ? e(MAL_STATUSES[mal.status] || 'Vinculado') : 'Sin vincular'}</strong><p>${mal ? `${Number(mal.watched)||0} capítulos en tu lista MAL` : 'Elige la ficha correcta para sincronizar tu avance.'}</p>${state.user ? mal ? `<button class="text-button" data-mal-edit="${Number(mal.id)}">Editar en MAL →</button>` : button('mal_find','Vincular con MAL','search',`data-slug="${e(a.slug)}"`,'small ghost') : '<button class="text-button" data-action="account">Conectar mi cuenta →</button>'}</article></section>`;
+  return `<section class="detail-progress" aria-label="Tu progreso en este anime"><article><h3>Tu avance</h3><strong>${seen} <small>de ${episodes.length} vistos</small></strong><div class="watch-progress" role="progressbar" aria-label="Capítulos vistos" aria-valuemin="0" aria-valuemax="${Math.max(1,episodes.length)}" aria-valuenow="${seen}"><span style="width:${seen/Math.max(1,episodes.length)*100}%"></span></div></article><article><h3>En tu PC</h3><strong class="confirmed"><span data-detail-download-count>${done}</span> <small data-detail-download-label>${done===1?'guardado':'guardados'}</small></strong><p class="queued" data-detail-queued-count>${queued} en cola</p></article><article><h3>MyAnimeList</h3><strong>${mal ? e(MAL_STATUSES[mal.status] || 'Vinculado') : '—'}</strong><p>${mal ? `${Number(mal.watched)||0} vistos en MAL` : 'Conecta tu lista'}</p>${state.user ? mal ? `<button class="text-button" data-mal-edit="${Number(mal.id)}" aria-label="Editar en MyAnimeList">Editar →</button>` : button('mal_find','Vincular','','data-slug="'+e(a.slug)+'" aria-label="Vincular con MyAnimeList"','small ghost') : '<button class="text-button" data-action="account">Conectar →</button>'}</article></section>`;
 }
 function catalogMetadataInfo(a) {
-  const values = [...(a.genres || []), ...(a.studios || []).map(s => 'Estudio: ' + s)];
-  if (a.mal_mean) values.push('Media MAL: ' + Number(a.mal_mean).toFixed(2) + '/10');
+  const values = [...(a.genres || []).slice(0,3)];
+  if (a.mal_mean) values.push('★ ' + Number(a.mal_mean).toFixed(1) + '/10 en MAL');
   return values.length ? `<p class="catalog-metadata">${values.map(e).join(' · ')}</p>` : '';
+}
+function catalogMetadataExtra(a) {
+  return (a.genres?.length||a.studios?.length)?`<details class="detail-fold"><summary>Ficha del anime</summary>${a.genres?.length?`<p>Géneros: ${a.genres.map(e).join(' · ')}</p>`:''}${a.studios?.length?`<p>Estudio: ${a.studios.map(e).join(', ')}</p>`:''}</details>`:'';
 }
 function catalogPersonalSections() {
   if (!featureHome) return '';
@@ -381,7 +384,7 @@ async function matchMal(id, search = '') {
   );
 }
 function sourceMalPanel(a) {
-  return `<div class="detail-mal-toolbar"><span class="mal-logo">MAL</span><div><strong>${a.mal ? `Vinculado · ${e(MAL_STATUSES[a.mal.status] || 'Sin añadir a MAL')}` : 'Relaciona esta ficha con MyAnimeList'}</strong><span>${a.mal ? `${a.mal.watched} capítulos vistos · ${a.mal.score ? a.mal.score + '/10' : 'Sin nota'}` : 'Puedes elegir el título y la temporada correctos.'}</span></div>${a.mal ? `<button class="button small ghost" data-mal-edit="${a.mal.id}">Editar en MAL</button><button class="button small ghost" data-exp="reconcile" data-slug="${e(a.slug)}">Reconciliar progreso</button>` : button('mal_find', 'Buscar en MAL', 'search', `data-slug="${e(a.slug)}"`, 'small ghost')}</div>`;
+  return `<div class="detail-mal-toolbar"><span class="mal-logo">MAL</span><div><strong>${a.mal ? `Vinculado · ${e(MAL_STATUSES[a.mal.status] || 'Sin añadir a MAL')}` : 'Relaciona esta ficha con MyAnimeList'}</strong><span>${a.mal ? `${a.mal.watched} capítulos vistos · ${a.mal.score ? a.mal.score + '/10' : 'Sin nota'}` : 'Puedes elegir el título y la temporada correctos.'}</span></div>${a.mal ? `<button class="button small ghost" data-mal-edit="${a.mal.id}">Editar en MAL</button><button class="button small ghost" data-exp="reconcile" data-slug="${e(a.slug)}">Revisar mi avance</button>` : button('mal_find', 'Buscar en MAL', 'search', `data-slug="${e(a.slug)}"`, 'small ghost')}</div>`;
 }
 function showMalFind(slug) {
   const a = lookupAnime(slug);
