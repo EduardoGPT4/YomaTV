@@ -1,7 +1,7 @@
 ((nativeLayout) => {
   'use strict';
   if (window.__seasonNative || !window.YomaAndroid || location.origin !== 'https://hk-br035.gt.tc' || !location.pathname.startsWith('/seasonav1/')) return;
-  window.__seasonNative = true;document.documentElement.classList.add('yoma-native');
+  window.__seasonNative = true;window.YomaNativeOnline = true;document.documentElement.classList.add('yoma-native');
   const post = data => YomaAndroid.postMessage(JSON.stringify(data));
   let previousAuth = '', previousRoute = '', timer;
   if(document.head){
@@ -52,10 +52,30 @@
   window.addEventListener('pageshow', () => { previousAuth=''; update(); });
   window.addEventListener('hashchange',update);
   document.addEventListener('visibilitychange', () => { if (!document.hidden) { previousAuth=''; update(); } });
+  window.addEventListener('yoma-native-playback-return',event=>{
+    if(Number(state?.user?.id)!==Number(event.detail?.owner))return;
+    const id=Number(event.detail?.episode_id);
+    if(id>0 && location.hash.startsWith('#watch/') && typeof openPlayer==='function')openPlayer(id,{fromRoute:true}).catch(error=>toast(error.message,true));
+    if(typeof scheduleWatchPump==='function')scheduleWatchPump();
+  });
   document.addEventListener('click', async event => {
     const account=event.target.closest('#account[data-action="account"]');
     if(account&&location.hash!=='#account'){
       event.preventDefault();event.stopImmediatePropagation();post({type:'account'});return;
+    }
+    const play=event.target.closest('[data-native-online]');
+    if(play){
+      event.preventDefault();event.stopImmediatePropagation();if(play.disabled)return;
+      play.disabled=true;const owner=Number(state?.user?.id)||0,id=Number(playerView?.episode?.id),selected=playerView?.servers?.[playerView.index];
+      try{
+        if(!owner || !id || selected?.server!=='MP4Upload')throw new Error('Elige MP4Upload para abrir el reproductor de la app.');
+        const result=await api('offline_plan',{episode_id:id,language:selected.language}),plan=result.offline_plan;
+        if(Number(state?.user?.id)!==owner || Number(plan.owner)!==owner || Number(playerView?.episode?.id)!==id || playerView.servers[playerView.index]!==selected)throw new Error('La selección cambió. Vuelve a pulsar reproducir.');
+        plan.episodes=plan.episodes.filter(ep=>Number(ep.episode_id)===id);
+        post({...plan,type:'play_online',episode_id:id,server:'MP4Upload'});
+      }catch(error){if(typeof toast==='function')toast(error.message,true);}
+      finally{play.disabled=false;}
+      return;
     }
     const b = event.target.closest('[data-native-offline]'); if (!b || b.disabled) return;
     event.preventDefault(); event.stopImmediatePropagation(); b.disabled = true;

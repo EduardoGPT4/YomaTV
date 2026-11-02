@@ -31,12 +31,13 @@ try{
     # Use the normal first-party gate before making this narrowly authenticated POST.
     import http.cookiejar
     opener=urllib.request.build_opener(urllib.request.HTTPCookieProcessor(http.cookiejar.CookieJar()));base='https://hk-br035.gt.tc/seasonav1/'
+    opener.addheaders=[('User-Agent','Mozilla/5.0 YomaTV authorized backup')]
     page=opener.open(base,timeout=40).read().decode();challenge=re.findall(r'toNumbers\("([a-f0-9]+)"\)',page)
     if challenge:
         code='$v=json_decode(stream_get_contents(STDIN),true);echo bin2hex(openssl_decrypt(hex2bin($v[2]),"aes-128-cbc",hex2bin($v[0]),OPENSSL_RAW_DATA|OPENSSL_ZERO_PADDING,hex2bin($v[1])));'
         value=subprocess.run([r'C:/Users/Eduardo/.config/herd-lite/bin/php.exe','-r',code],input=json.dumps(challenge),text=True,capture_output=True,check=True).stdout.strip()
         if not re.fullmatch('[a-f0-9]{32}',value):raise RuntimeError('Unexpected host gate')
-        opener.addheaders=[('Cookie','__test='+value)]
+        opener.addheaders.append(('Cookie','__test='+value))
     partial=target.with_suffix('.part');uploaded=[]
     with InfinityFTP(context=ssl.create_default_context(),timeout=90) as ftp:
         ftp.connect('ftpupload.net',21);ftp.login(config['username'],config['password']);ftp.prot_p();ftp.cwd('/htdocs/seasonav1')

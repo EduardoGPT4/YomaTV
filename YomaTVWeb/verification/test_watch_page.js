@@ -94,5 +94,10 @@ function player(id){return {index:0,episode:{id,number:String(id),slug:'naruto',
   const escaped=context.watchServerButtons({servers:[{server:'<img onerror=x>',language:'<script>'}],index:0});assert(!escaped.includes('<img')&&!escaped.includes('<script>'));
   assert.equal((context.watchServerButtons(player(17)).match(/watch-server-group"/g)||[]).length,1);
   checks.push('audio_rows_preserve_server_indices_selection_and_click_target_with_no_duplicate_buttons_or_empty_rows');
+  const native=player(18);native.servers[0]={server:'MP4Upload',language:'SUB',url:'https://www.mp4upload.com/embed-fixture.html'};
+  context.window.YomaNativeOnline=true;
+  const nativeMarkup=context.watchPageTemplate(native);assert(nativeMarkup.includes('data-native-online'));assert(!nativeMarkup.includes('<iframe'));assert(nativeMarkup.includes('80 %'));
+  context.window.YomaNativeOnline=false;assert(context.watchPageTemplate(native).includes('<iframe'));
+  checks.push('new_apk_uses_native_mp4upload_stage_without_duplicate_video_while_old_clients_keep_their_player');
   const result={ok:true,checks};fs.writeFileSync('verification/watch-page-ui-check.json',JSON.stringify(result,null,2));console.log(JSON.stringify(result));
 })().catch(error=>{console.error(error);process.exitCode=1;});

@@ -36,6 +36,13 @@ fun android.content.Context.dp(value: Int) = (value * resources.displayMetrics.d
 fun background(color: Int, radius: Float = 18f) = GradientDrawable().apply { setColor(color); cornerRadius = radius }
 
 class MainActivity : ComponentActivity() {
+    private val onlinePlayer=registerForActivityResult(androidx.activity.result.contract.ActivityResultContracts.StartActivityForResult()) { result ->
+        val data=result.data
+        if(::web.isInitialized && data!=null && data.getLongExtra("owner",0)==prefs.owner){
+            val detail=JSONObject().put("owner",prefs.owner).put("episode_id",data.getLongExtra("episode_id",0))
+            web.evaluateJavascript("window.dispatchEvent(new CustomEvent('yoma-native-playback-return',{detail:$detail}))",null)
+        }
+    }
     private lateinit var web: WebView
     private lateinit var root: LinearLayout
     private lateinit var content: FrameLayout
@@ -235,7 +242,7 @@ class MainActivity : ComponentActivity() {
         if (Build.VERSION.SDK_INT >= 30) window.insetsController?.show(android.view.WindowInsets.Type.systemBars())
     }
     private fun receive(message: JSONObject, source: WebView = web, key: String = activeTab) {
-        if(source!==web && message.optString("type") in setOf("auth","plan"))return
+        if(source!==web && message.optString("type") in setOf("auth","plan","play_online"))return
         when (message.optString("type")) {
             "auth" -> {
                 readyTabs.add(key); if(source === web)webReady = true
@@ -259,6 +266,15 @@ class MainActivity : ComponentActivity() {
                 if (pendingAccount) { pendingAccount=false; openWebAccount() }
             }
             "plan" -> choose(message)
+            "play_online" -> {
+                if(!isWebPage() || message.optString("server")!="MP4Upload")return
+                val owner=message.getLong("owner")
+                require(owner>0 && owner==prefs.owner)
+                val payload=OnlinePlayback.payload(message,owner,message.getLong("episode_id"))
+                val ep=Store(this).use{it.openOnline(payload)}
+                suspendWeb()
+                onlinePlayer.launch(Intent(this,PlayerActivity::class.java).putExtra("owner",owner).putExtra("key",ep.key).putExtra("online",true))
+            }
             "account" -> if(source===web)openWebAccount()
             "navigation" -> if(source === web) updateNav(message.optString("route"))
             "more" -> { activeTab="more";show("more") }

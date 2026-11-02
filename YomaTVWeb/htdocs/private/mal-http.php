@@ -66,8 +66,15 @@ function mal_http(
     'profile' => 'https://api.myanimelist.net/v2/users/@me',
     'list' => 'https://api.myanimelist.net/v2/users/@me/animelist',
     'search' => 'https://api.myanimelist.net/v2/anime',
+    'manga-search' => 'https://api.myanimelist.net/v2/manga',
   ];
-  if (preg_match('/^anime:([1-9][0-9]{0,8})$/D', $endpoint, $match)) {
+  if (preg_match('/^manga:([1-9][0-9]{0,8})$/D', $endpoint, $match)) {
+    if ($method !== 'GET') throw new LogicException('Invalid MAL method.');
+    $allowed[$endpoint]='https://api.myanimelist.net/v2/manga/'.$match[1];
+  } elseif (preg_match('/^manga-list-status:([1-9][0-9]{0,8})$/D', $endpoint, $match)) {
+    if ($method !== 'PATCH') throw new LogicException('Invalid MAL method.');
+    $allowed[$endpoint]='https://api.myanimelist.net/v2/manga/'.$match[1].'/my_list_status';
+  } elseif (preg_match('/^anime:([1-9][0-9]{0,8})$/D', $endpoint, $match)) {
     if ($method !== 'GET') {
       throw new LogicException('Invalid MAL method.');
     }

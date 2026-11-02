@@ -29,6 +29,14 @@ function environment(origin='https://hk-br035.gt.tc',avatar=null){
   const guest=environment();guest.context.state.user=null;await guest.clicks[0]({target:{closest:selector=>selector==='[data-native-offline]'?guest.buttons[0]:null},preventDefault(){},stopImmediatePropagation(){}});assert.equal(guest.requests.length,0);
   const anime=environment();anime.context.detailState={episodes:[{id:7}]};anime.buttons[0].dataset.nativeOffline='anime';anime.context.state.settings.language='LAT';anime.context.playerView.servers[0].language='DUB';
   await anime.clicks[0]({target:{closest:selector=>selector==='[data-native-offline]'?anime.buttons[0]:null},preventDefault(){},stopImmediatePropagation(){}});assert.equal(anime.posted.find(p=>p.type==='plan').language,'LAT');
+  const online=environment(),play={disabled:false};online.context.playerView.servers[0].server='MP4Upload';
+  const playEvent={target:{closest:selector=>selector==='[data-native-online]'?play:null},preventDefault(){},stopImmediatePropagation(){}};
+  await online.clicks[0](playEvent);
+  assert.equal(online.context.YomaNativeOnline,true);const launch=online.posted.find(p=>p.type==='play_online');
+  assert.equal(launch.episode_id,7);assert.equal(launch.episodes.length,1);assert.equal(launch.server,'MP4Upload');assert.equal(launch.url,undefined);assert.equal(play.disabled,false);
+  const moved=environment();moved.context.playerView.servers[0].server='MP4Upload';moved.context.api=async()=>{moved.context.playerView.episode.id=8;return{offline_plan:{owner:12,episodes:[]}}};
+  await moved.clicks[0](playEvent);assert(!moved.posted.some(p=>p.type==='play_online'));assert(moved.errors.some(e=>e.includes('selección')));
   const report={ok:true,checks:['origin_restricted','profile_button_opens_dedicated_native_account_screen','mal_profile_avatar_forwarded_to_native','native_action_injected_once','download_plan_does_not_open_playback_session','single_episode_selection_preserved','account_change_cancels_plan','guest_cannot_queue','anime_download_uses_preferences_not_another_animes_player_language']};
+  report.checks.push('online_player_receives_authenticated_single_episode_plan_without_media_url','changing_episode_cancels_pending_online_launch');
   fs.writeFileSync(path.join(__dirname,'native-integration-check.json'),JSON.stringify(report,null,2));console.log(JSON.stringify(report));
 })().catch(error=>{console.error(error);process.exitCode=1});

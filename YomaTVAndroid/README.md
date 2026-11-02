@@ -1,6 +1,8 @@
 # YomaTV Android
 
-Aplicación Android 8 o posterior, versión 1.2.0. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor local nativos. Usa la nueva identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+Aplicación Android 8 o posterior, versión 1.3.0. Integra el catálogo y la cuenta de la web con un gestor de descargas y un reproductor nativo para MP4Upload online y archivos guardados. Usa la identidad YomaTV, pestañas independientes e icono compartido con la web y Windows. No necesita la aplicación de Windows.
+
+La revisión 1.3.0 unifica la reproducción online de MP4Upload con la de Descargas, incluida la posición y la actualización automática de MAL al llegar al 80 %. Consulta [los cambios y las pruebas](YOMATV-1.3.0.md).
 
 La revisión 1.2.0 conserva las filas y el desplazamiento de Descargas durante el progreso, separa la cuenta de las pestañas y adapta Inicio, Temporada y Descargas a la referencia móvil. Más conserva su diseño. Consulta [los cambios y las pruebas](YOMATV-1.2.0.md).
 
@@ -35,9 +37,11 @@ La revisión 1.1.2 sustituye los símbolos de «Más» por iconos vectoriales y 
 
 ## Reproducción y MAL
 
-El reproductor de archivos descargados utiliza Media3, orientación horizontal, saltos de diez segundos, salto de intro, velocidad, picture-in-picture y siguiente automático si el capítulo siguiente está guardado. La posición se conserva al saltar, pausar y cerrar, y periódicamente durante la reproducción.
+El reproductor utiliza Media3 para MP4Upload online y archivos descargados: orientación horizontal, saltos de diez segundos, salto de intro, velocidad y picture-in-picture. En la página del capítulo, selecciona MP4Upload y pulsa **Reproducir**. El video se transmite por fragmentos; no se agrega a Descargas. Si hay una copia guardada completa, se utiliza sin volver a descargarla. Otros servidores conservan la reproducción incrustada existente.
 
-El 80 % automático fiable corresponde al reproductor local. La reproducción online conserva los controles originales del servidor y el ojo de la web. La app no inventa telemetría de iframes externos.
+La posición se conserva al saltar, pausar y cerrar, y periódicamente durante la reproducción. Una copia online y una descargada comparten el progreso cuando pertenecen a la misma identidad MAL y revisión de progreso. Al llegar al 80 % de la posición se prepara el envío a MyAnimeList; sin internet queda pendiente. El siguiente capítulo se abre tras ocho segundos (puede cancelarse). Online consulta el siguiente capítulo; sin conexión necesita que esté guardado.
+
+Las conexiones se validan también después de cada redirección, respetan el idioma elegido y reutilizan el Referer del servidor. Tras un error o una espera prolongada aparece **Reintentar conexión**, que renueva el enlace y conserva la posición. La disponibilidad y velocidad siguen dependiendo de MP4Upload.
 
 Los pendientes pertenecen a la cuenta YomaTV y a la identidad MAL capturada al preparar la descarga. Cambiar de cuenta no los atribuye a otra. Una corrección del progreso, un cambio de identidad o un vínculo no confirmado detiene el envío y explica el motivo. Si se preparó sin cuenta MAL, el visto local se conserva; debe revisarse desde la web antes de atribuirlo a una cuenta nueva.
 

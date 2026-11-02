@@ -3,6 +3,8 @@ declare(strict_types=1);
 define('SEASON_BOOTSTRAPPED', true);
 require __DIR__ . '/private/app.php';
 header('Referrer-Policy: no-referrer');
+require_once __DIR__.'/private/yomashi-mal.php';
+if(is_string($_GET['state']??null)&&str_starts_with($_GET['state'],'ys_')) ys_callback_page();
 $callbackFlow=$_SESSION['mal_oauth']??null;
 try {
   if ($_SERVER['REQUEST_METHOD'] !== 'GET') throw new WebError('Método no permitido.', 405);

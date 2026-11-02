@@ -114,7 +114,7 @@ function renderPlayer(){
   mountWatchPage(markup);
   $('#main').dataset.renderScope=`${state.user.id}:watch`;document.title=`Capítulo ${p.episode.number} · ${p.episode.title} · YomaTV`;
   if(playerMalConfirmed(p))updatePlayerWatchBadge('synced');else if(Number(p.watch_sync?.target)===Number(p.episode.number))updatePlayerWatchBadge(p.watch_sync.state);updateWatchPage();if(p.mal?.linked&&!p.mal.confirmed)offerPlayerMalConfirmation(p);
-  if(m?.server==='MP4Upload'&&typeof YomaTVPlayerController==='function'){
+  if(m?.server==='MP4Upload'&&!nativeOnlinePlayer(p)&&typeof YomaTVPlayerController==='function'){
     const user=state.user.id,node=document.querySelector('[data-player-watch-status]');
     const nativeControls=typeof SeasonMobilePlayback!=='undefined'&&SeasonMobilePlayback.isMobile();
     playerController=new YomaTVPlayerController({stage:document.querySelector('.video-stage'),iframe:document.querySelector('iframe[data-season-player]'),episodeNumber:p.episode.number,autoplay:p.autoplay,...playerExperience(p),nativeControls,

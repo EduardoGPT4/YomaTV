@@ -72,7 +72,7 @@ class DeviceTest {
             scenario.onActivity { activity ->
                 fun texts(view:android.view.View):List<String> = when(view){is android.widget.TextView -> listOf(view.text.toString());is android.view.ViewGroup -> (0 until view.childCount).flatMap{texts(view.getChildAt(it))};else -> emptyList()}
                 val text=texts(activity.window.decorView)
-                assertEquals(1,text.count{it=="Historia de prueba"});assertTrue(text.any{it.contains("0 de 100")})
+                assertEquals(1,text.count{it=="Historia de prueba"});assertTrue(text.any{it.contains("100 capítulos pendientes")})
             }
             report("database-ui",JSONObject().put("insert_100_ms",writeMs).put("read_100_mean_ms",readMs).put("warm_read_100_mean_ms",warmMs).put("grouped_view_launch_ms",(System.nanoTime()-uiAt)/1e6))
         }

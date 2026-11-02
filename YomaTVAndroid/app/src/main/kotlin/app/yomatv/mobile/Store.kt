@@ -26,7 +26,7 @@ class Prefs(context: Context) {
 data class Episode(val payload: JSONObject, val state: String, val bytes: Long, val total: Long,
                    val etag: String, val modified: String, val position: Long, val duration: Long,
                    val watched: Boolean, val pending: Boolean, val sync: String, val error: String,
-                   val attempts: Int, val speed: Double, val hash: String) {
+                   val attempts: Int, val speed: Double, val hash: String, val online: Boolean = false) {
     val owner get() = payload.getLong("owner")
     val episodeId get() = payload.getLong("episode_id")
     val slug get() = payload.getString("slug")
@@ -40,25 +40,34 @@ data class Episode(val payload: JSONObject, val state: String, val bytes: Long, 
     }
 }
 
-class Store(private val context: Context) : SQLiteOpenHelper(context, "season-downloads.db", null, 1) {
+class Store(private val context: Context) : SQLiteOpenHelper(context, "season-downloads.db", null, 2) {
     override fun onConfigure(db: SQLiteDatabase) { db.enableWriteAheadLogging() }
     override fun onCreate(db: SQLiteDatabase) {
-        db.execSQL("""CREATE TABLE downloads(id TEXT PRIMARY KEY,owner INTEGER NOT NULL,payload TEXT NOT NULL,
+        createTable(db, "downloads")
+        createTable(db, "online_playback")
+    }
+    private fun createTable(db: SQLiteDatabase, table: String) {
+        db.execSQL("""CREATE TABLE $table(id TEXT PRIMARY KEY,owner INTEGER NOT NULL,payload TEXT NOT NULL,
             state TEXT NOT NULL DEFAULT 'queued',bytes INTEGER NOT NULL DEFAULT 0,total INTEGER NOT NULL DEFAULT 0,
             etag TEXT NOT NULL DEFAULT '',modified TEXT NOT NULL DEFAULT '',position INTEGER NOT NULL DEFAULT 0,
             duration INTEGER NOT NULL DEFAULT 0,watched INTEGER NOT NULL DEFAULT 0,pending INTEGER NOT NULL DEFAULT 0,
             sync TEXT NOT NULL DEFAULT '',error TEXT NOT NULL DEFAULT '',attempts INTEGER NOT NULL DEFAULT 0,
             speed REAL NOT NULL DEFAULT 0,hash TEXT NOT NULL DEFAULT '',added INTEGER NOT NULL)""")
-        db.execSQL("CREATE INDEX owner_state ON downloads(owner,state,added)")
+        db.execSQL("CREATE INDEX ${table}_owner_state ON $table(owner,state,added)")
     }
-    override fun onUpgrade(db: SQLiteDatabase, old: Int, new: Int) = Unit
-    fun add(payload: JSONObject): Boolean {
+    override fun onUpgrade(db: SQLiteDatabase, old: Int, new: Int) { if (old < 2) createTable(db, "online_playback") }
+    private fun validate(payload: JSONObject) {
         val owner = payload.getLong("owner"); val slug = payload.getString("slug")
         val number = payload.getString("number"); val language = payload.getString("language")
         require(owner > 0 && payload.getLong("episode_id") > 0)
         require(Regex("[A-Za-z0-9_-]{1,160}").matches(slug) && Regex("\\d{1,6}(?:\\.\\d{1,3})?").matches(number))
         require(language in setOf("SUB", "LAT", "DUB") && payload.getString("title").length in 1..500)
         require(payload.toString().length < 8192)
+    }
+    fun add(payload: JSONObject): Boolean {
+        validate(payload)
+        val owner = payload.getLong("owner"); val slug = payload.getString("slug")
+        val number = payload.getString("number"); val language = payload.getString("language")
         val key = Episode.key(owner, slug, number, language)
         val values = ContentValues().apply {
             put("id", key); put("owner", owner); put("payload", payload.toString()); put("added", System.currentTimeMillis())
@@ -72,6 +81,26 @@ class Store(private val context: Context) : SQLiteOpenHelper(context, "season-do
         return writableDatabase.update("downloads", reset, "id=? AND owner=? AND state='removed'", arrayOf(key, owner.toString())) == 1
     }
     fun list(owner: Long): List<Episode> = read("owner=?", arrayOf(owner.toString()))
+    fun playback(owner: Long): List<Episode> = read("owner=?", arrayOf(owner.toString()), true)
+    /** Online progress never becomes a download job or changes a downloaded file's identity. */
+    @Synchronized fun openOnline(payload: JSONObject): Episode {
+        validate(payload)
+        val owner=payload.getLong("owner")
+        val key=Episode.key(owner,payload.getString("slug"),payload.getString("number"),payload.getString("language"))
+        val previous=get(key,owner,true)
+        val local=get(key,owner)
+        val seed=previous ?: local
+        val sameIdentity=seed != null && seed.payload.optLong("mal_account_id")==payload.optLong("mal_account_id") &&
+            seed.payload.optString("progress_revision")==payload.optString("progress_revision")
+        val values=ContentValues().apply {
+            put("id",key);put("owner",owner);put("payload",payload.toString());put("state","online");put("added",System.currentTimeMillis())
+            put("position",if(sameIdentity)seed!!.position else 0L);put("duration",if(sameIdentity)seed!!.duration else 0L)
+            put("watched",if(payload.optBoolean("watched") || sameIdentity && seed!!.watched)1 else 0)
+            put("pending",if(sameIdentity && seed!!.pending)1 else 0);put("sync",if(sameIdentity)seed!!.sync else "")
+        }
+        writableDatabase.insertWithOnConflict("online_playback",null,values,SQLiteDatabase.CONFLICT_REPLACE)
+        return get(key,owner,true)!!
+    }
     fun addBatch(payloads: List<JSONObject>): Int {
         var count = 0
         writableDatabase.beginTransaction()
@@ -81,17 +110,37 @@ class Store(private val context: Context) : SQLiteOpenHelper(context, "season-do
         } finally { writableDatabase.endTransaction() }
         return count
     }
-    fun get(id: String, owner: Long): Episode? = read("id=? AND owner=?", arrayOf(id, owner.toString())).firstOrNull()
-    private fun read(where: String, values: Array<String>): List<Episode> {
+    fun get(id: String, owner: Long, online: Boolean = false): Episode? = read("id=? AND owner=?", arrayOf(id, owner.toString()), online).firstOrNull()
+    private fun read(where: String, values: Array<String>, online: Boolean = false): List<Episode> {
         val rows = mutableListOf<Episode>()
-        readableDatabase.query("downloads", null, where, values, null, null, "added,rowid").use { cursor ->
+        readableDatabase.query(if(online)"online_playback" else "downloads", null, where, values, null, null, "added,rowid").use { cursor ->
             fun s(key: String) = cursor.getString(cursor.getColumnIndexOrThrow(key))
             fun l(key: String) = cursor.getLong(cursor.getColumnIndexOrThrow(key))
-            while (cursor.moveToNext()) rows.add(Episode(JSONObject(s("payload")), s("state"), l("bytes"), l("total"), s("etag"), s("modified"), l("position"), l("duration"), l("watched") == 1L, l("pending") == 1L, s("sync"), s("error"), l("attempts").toInt(), cursor.getDouble(cursor.getColumnIndexOrThrow("speed")), s("hash")))
+            while (cursor.moveToNext()) rows.add(Episode(JSONObject(s("payload")), s("state"), l("bytes"), l("total"), s("etag"), s("modified"), l("position"), l("duration"), l("watched") == 1L, l("pending") == 1L, s("sync"), s("error"), l("attempts").toInt(), cursor.getDouble(cursor.getColumnIndexOrThrow("speed")), s("hash"),online))
         }
         return rows
     }
     @Synchronized fun update(key: String, owner: Long, vararg fields: Pair<String, Any>) {
+        updateTable("downloads",key,owner,null,*fields)
+    }
+    @Synchronized fun update(ep: Episode, vararg fields: Pair<String, Any>) {
+        writableDatabase.beginTransaction()
+        try{
+            val changed=updateTable(if(ep.online)"online_playback" else "downloads",ep.key,ep.owner,ep,*fields)
+            // A saved copy and a streamed copy share watch progress, never file/job state.
+            val progress=fields.filter{it.first in setOf("position","duration","watched","pending","sync")}.toTypedArray()
+            if(changed>0 && progress.isNotEmpty())updateTable(if(ep.online)"downloads" else "online_playback",ep.key,ep.owner,ep,*progress)
+            writableDatabase.setTransactionSuccessful()
+        }finally{writableDatabase.endTransaction()}
+    }
+    private fun updateTable(table: String,key: String, owner: Long, expected: Episode?, vararg fields: Pair<String, Any>): Int {
+        var where="id=? AND owner=?";var args=arrayOf(key,owner.toString())
+        if(expected!=null){
+            val raw=readableDatabase.query(table,arrayOf("payload"),where,args,null,null,null).use{if(it.moveToFirst())it.getString(0) else null} ?: return 0
+            val snapshot=JSONObject(raw)
+            if(snapshot.optLong("mal_account_id")!=expected.payload.optLong("mal_account_id") || snapshot.optString("progress_revision")!=expected.payload.optString("progress_revision"))return 0
+            where+=" AND payload=?";args+=raw
+        }
         val values = ContentValues()
         for ((name, value) in fields) {
             require(name in setOf("state","bytes","total","etag","modified","position","duration","watched","pending","sync","error","attempts","speed","hash"))
@@ -100,7 +149,7 @@ class Store(private val context: Context) : SQLiteOpenHelper(context, "season-do
                 is Boolean -> values.put(name, if (value) 1 else 0); is Double -> values.put(name, value)
             }
         }
-        writableDatabase.update("downloads", values, "id=? AND owner=?", arrayOf(key, owner.toString()))
+        return writableDatabase.update(table, values, where, args)
     }
     fun recover(owner: Long) { writableDatabase.execSQL("UPDATE downloads SET state='queued',speed=0 WHERE owner=? AND state IN ('downloading','verifying')", arrayOf(owner)) }
     fun claim(ep: Episode): Boolean = writableDatabase.update("downloads", ContentValues().apply { put("state", "downloading"); put("error", ""); put("speed", 0) },

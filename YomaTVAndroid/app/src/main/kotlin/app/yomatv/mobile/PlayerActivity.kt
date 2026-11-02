@@ -18,6 +18,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.ui.PlayerView
 
 @androidx.annotation.OptIn(markerClass = [UnstableApi::class])
@@ -29,20 +30,26 @@ class PlayerActivity : ComponentActivity() {
     private lateinit var toast: TextView
     private lateinit var actions: LinearLayout
     private lateinit var caption: TextView
+    private lateinit var retry: Button
     private var player: ExoPlayer? = null
     private var alreadyWatched = false
     private var notifiedSync = false
     private var lastSave = 0L
     private var nextTask: Runnable? = null
     private var nextTicks = 8
+    private var generation = 0
+    private var preparing = false
+    private var bufferingSince = 0L
+    private val resolver = java.util.concurrent.Executors.newSingleThreadExecutor()
     private val handler = Handler(Looper.getMainLooper())
     private val tick = object : Runnable {
         override fun run() {
             save(false)
-            val current = store.get(episode.key, episode.owner)
+            val current = store.get(episode.key, episode.owner, episode.online)
             if (current?.sync == "Actualizado en MyAnimeList" && !notifiedSync) {
                 notifiedSync = true; slide("Capítulo ${episode.number} actualizado en MyAnimeList")
             }
+            if(bufferingSince>0 && android.os.SystemClock.elapsedRealtime()-bufferingSince>30_000)retry.visibility=View.VISIBLE
             handler.postDelayed(this, 1000)
         }
     }
@@ -50,16 +57,18 @@ class PlayerActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         store = Store(this)
         val owner = intent.getLongExtra("owner", 0)
-        val found = store.get(intent.getStringExtra("key").orEmpty(), owner)
-        if (owner != Prefs(this).owner || found == null || found.state != "done" || !store.video(found).exists() || store.video(found).length() != found.total) {
+        val found = store.get(savedInstanceState?.getString("key") ?: intent.getStringExtra("key").orEmpty(), owner, savedInstanceState?.getBoolean("online") ?: intent.getBooleanExtra("online",false))
+        if (owner != Prefs(this).owner || found == null || !found.online && (found.state != "done" || !store.video(found).exists() || store.video(found).length() != found.total)) {
             Toast.makeText(this, "El capítulo no está disponible para esta cuenta.", Toast.LENGTH_LONG).show(); finish(); return
         }
         episode = found; alreadyWatched = found.watched; notifiedSync = found.sync == "Actualizado en MyAnimeList"
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         root = FrameLayout(this).apply { setBackgroundColor(INK) }
-        view = PlayerView(this).apply { useController = true; controllerShowTimeoutMs = 2500; setShowNextButton(false); setShowPreviousButton(false) }
+        view = PlayerView(this).apply { useController = true; controllerShowTimeoutMs = 2500; setShowNextButton(false); setShowPreviousButton(false); setShowBuffering(PlayerView.SHOW_BUFFERING_WHEN_PLAYING) }
         root.addView(view, FrameLayout.LayoutParams(-1, -1))
+        retry=control("Reintentar conexión", "Reintentar reproducción desde la misma posición") { releasePlayer();createPlayer() }.apply{visibility=View.GONE}
+        root.addView(retry,FrameLayout.LayoutParams(-2,-2,Gravity.CENTER))
         actions = LinearLayout(this).apply { setPadding(dp(10), dp(4), dp(10), dp(4)); gravity = Gravity.CENTER_VERTICAL; background = background(0xdc0e0d14.toInt(), dp(16).toFloat()) }
         actions.addView(control("‹", "Cerrar reproductor") { finish() })
         caption = TextView(this).apply { text = "${episode.title} · ${episode.number}"; textSize = 16f; setTextColor(PAPER); includeFontPadding=false;gravity=Gravity.CENTER_VERTICAL;maxLines = 1; ellipsize = android.text.TextUtils.TruncateAt.END }
@@ -95,22 +104,58 @@ class PlayerActivity : ComponentActivity() {
         setOnClickListener { action() }
     }
     private fun createPlayer() {
-        if (!::episode.isInitialized || player != null) return
+        if (!::episode.isInitialized || player != null || preparing) return
         if (Prefs(this).owner != episode.owner) { finish(); return }
-        val current = store.get(episode.key, episode.owner) ?: return
-        val file = store.video(current)
-        val exo = ExoPlayer.Builder(this).setSeekBackIncrementMs(10_000).setSeekForwardIncrementMs(10_000).build()
+        val current = store.get(episode.key, episode.owner, episode.online) ?: return
+        retry.visibility=View.GONE
+        // Prefer an intact saved copy, but keep this online session's fresh MAL identity.
+        val local=if(current.online)store.get(current.key,current.owner) else current
+        val file=local?.takeIf{it.state=="done"}?.let{store.video(it).takeIf{file->file.exists() && file.length()==it.total}}
+        if(file!=null){startPlayer(current,android.net.Uri.fromFile(file),null);return}
+        if(!current.online){slide("El archivo guardado ya no está disponible.");return}
+        val request=++generation;preparing=true;slide("Abriendo capítulo online…")
+        resolver.execute {
+            val source=runCatching {
+                val fixture=intent.getStringExtra("qa_stream").orEmpty()
+                if(BuildConfig.DEBUG && Regex("http://127\\.0\\.0\\.1:[1-9][0-9]{0,4}/sample\\.mp4").matches(fixture))OnlinePlayback.Source(fixture,fixture)
+                else OnlinePlayback.resolve(current)
+            }
+            handler.post {
+                if(request!=generation || isFinishing || isDestroyed)return@post
+                preparing=false
+                if(Prefs(this).owner!=current.owner){finish();return@post}
+                source.onSuccess{startPlayer(current,android.net.Uri.parse(it.url),it.referer)}.onFailure{
+                    retry.visibility=View.VISIBLE;slide(if(it is app.yomatv.engine.ProviderChanged)it.message.orEmpty() else "No se pudo conectar con MP4Upload. Reintenta desde esta posición.")
+                }
+            }
+        }
+    }
+    private fun startPlayer(current: Episode, uri: android.net.Uri, referer: String?) {
+        val builder=ExoPlayer.Builder(this).setSeekBackIncrementMs(10_000).setSeekForwardIncrementMs(10_000)
+        if(referer!=null){
+            val factory=androidx.media3.datasource.DataSource.Factory {
+                StreamDataSource(referer){url->app.yomatv.engine.Provider.allowed(url,"video") || BuildConfig.DEBUG && url==intent.getStringExtra("qa_stream") && uri.host=="127.0.0.1"}
+            }
+            builder.setMediaSourceFactory(DefaultMediaSourceFactory(factory))
+        }
+        val exo = builder.build()
         player = exo; view.player = exo
         exo.addListener(object : Player.Listener {
             override fun onPositionDiscontinuity(oldPosition: Player.PositionInfo, newPosition: Player.PositionInfo, reason: Int) { save(true) }
             override fun onIsPlayingChanged(isPlaying: Boolean) { if (!isPlaying) save(true) }
             override fun onPlaybackStateChanged(playbackState: Int) {
+                bufferingSince=if(playbackState==Player.STATE_BUFFERING)android.os.SystemClock.elapsedRealtime() else 0L
+                if(playbackState==Player.STATE_READY)retry.visibility=View.GONE
                 if (playbackState == Player.STATE_ENDED) { save(true); scheduleNext() }
             }
-            override fun onPlayerError(error: androidx.media3.common.PlaybackException) { slide("No se pudo reproducir el archivo. Usa «Verificar archivo» en Descargas.") }
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                if(current.online){retry.visibility=View.VISIBLE;slide("La reproducción se interrumpió. Reintenta sin perder tu posición.")}
+                else slide("No se pudo reproducir el archivo. Usa «Verificar archivo» en Descargas.")
+            }
         })
-        exo.setMediaItem(MediaItem.fromUri(android.net.Uri.fromFile(file)))
-        exo.seekTo(current.position.coerceAtLeast(0)); exo.prepare(); exo.playWhenReady = true
+        exo.setMediaItem(MediaItem.fromUri(uri))
+        val resume=if(current.duration>0 && current.position>=current.duration-5000)0 else current.position.coerceAtLeast(0)
+        exo.seekTo(resume); exo.prepare(); exo.playWhenReady = true
     }
     private fun save(force: Boolean) {
         val p = player ?: return
@@ -120,12 +165,12 @@ class PlayerActivity : ComponentActivity() {
         val position = p.currentPosition.coerceIn(0,duration)
         val threshold = !alreadyWatched && position.toDouble() / duration >= .8
         if (force || threshold || System.currentTimeMillis() - lastSave >= 10_000) {
-            store.update(episode.key, episode.owner, "position" to position, "duration" to duration)
+            store.update(episode, "position" to position, "duration" to duration)
             lastSave = System.currentTimeMillis()
         }
         if (threshold) {
             alreadyWatched = true
-            store.update(episode.key, episode.owner, "watched" to true, "pending" to true, "sync" to "Pendiente de MyAnimeList")
+            store.update(episode, "watched" to true, "pending" to true, "sync" to "Pendiente de MyAnimeList")
             Queue.sync(this); slide("Capítulo ${episode.number} visto · sincronizando con MAL")
         }
     }
@@ -143,26 +188,49 @@ class PlayerActivity : ComponentActivity() {
         if (nextTask != null) return
         val nextId = episode.payload.optLong("next_episode_id")
         val next = store.list(episode.owner).firstOrNull { it.episodeId == nextId && it.language == episode.language && it.state == "done" && store.video(it).exists() }
-        if (next == null) { slide("Terminaste. El siguiente capítulo todavía no está guardado."); return }
+        if(nextId<=0){slide("Terminaste el último capítulo disponible.");return}
+        if (next == null && !episode.online) { slide("Terminaste. El siguiente capítulo todavía no está guardado."); return }
         nextTicks = 8
         toast.setOnClickListener { nextTask?.let { handler.removeCallbacks(it) }; nextTask = null; toast.setOnClickListener(null); slide("Siguiente automático cancelado") }
         val task = object : Runnable {
             override fun run() {
                 if (isFinishing || Prefs(this@PlayerActivity).owner != episode.owner) return
                 if (nextTicks <= 0) {
-                    nextTask = null; releasePlayer(); cleanupWatched(); episode = next; alreadyWatched = next.watched; notifiedSync = next.sync == "Actualizado en MyAnimeList"
-                    caption.text = "${episode.title} · ${episode.number}"; toast.setOnClickListener(null); createPlayer(); slide("Capítulo ${next.number}"); return
+                    nextTask = null;toast.setOnClickListener(null)
+                    if(episode.online)openNextOnline(nextId)else if(next!=null)switchEpisode(next)
+                    return
                 }
-                toast.text = "Capítulo ${next.number} en ${nextTicks--} s · toca para cancelar"; toast.visibility = View.VISIBLE; toast.alpha = 1f; toast.translationY = 0f
+                toast.text = "${next?.let{"Capítulo ${it.number}"} ?: "Siguiente capítulo"} en ${nextTicks--} s · toca para cancelar"; toast.visibility = View.VISIBLE; toast.alpha = 1f; toast.translationY = 0f
                 handler.postDelayed(this, 1000)
             }
         }
         nextTask = task; handler.post(task)
     }
-    private fun releasePlayer() { save(true); view.player = null; player?.release(); player = null }
-    private fun cleanupWatched() {
-        if (Prefs(this).cleanWatched && alreadyWatched) runCatching { store.get(episode.key, episode.owner)?.let { store.removeVideo(it) } }
+    private fun openNextOnline(id: Long) {
+        val current=episode;val request=++generation;preparing=true
+        resolver.execute {
+            val result=runCatching{WebApi(this).online(current.owner,id,current.language)}
+            handler.post {
+                if(request!=generation || isFinishing || isDestroyed)return@post
+                preparing=false
+                if(Prefs(this).owner!=current.owner){finish();return@post}
+                result.onSuccess{switchEpisode(store.openOnline(it))}.onFailure{slide("No se pudo abrir el siguiente capítulo. Vuelve al listado para reintentarlo.")}
+            }
+        }
     }
+    private fun switchEpisode(next: Episode) {
+        releasePlayer();cleanupWatched();episode=next;alreadyWatched=next.watched;notifiedSync=next.sync=="Actualizado en MyAnimeList";lastSave=0L
+        caption.text="${episode.title} · ${episode.number}";createPlayer();slide("Capítulo ${next.number}")
+    }
+    private fun releasePlayer() { generation++;preparing=false;bufferingSince=0;save(true);if(::view.isInitialized)view.player = null; player?.release(); player = null }
+    private fun cleanupWatched() {
+        if (!episode.online && Prefs(this).cleanWatched && alreadyWatched) runCatching { store.get(episode.key, episode.owner)?.let { store.removeVideo(it) } }
+    }
+    override fun finish() {
+        if(::episode.isInitialized)setResult(RESULT_OK,android.content.Intent().putExtra("episode_id",episode.episodeId).putExtra("owner",episode.owner))
+        super.finish()
+    }
+    override fun onSaveInstanceState(outState: Bundle){if(::episode.isInitialized){outState.putString("key",episode.key);outState.putBoolean("online",episode.online)};super.onSaveInstanceState(outState)}
     override fun onStart() { super.onStart(); if (::episode.isInitialized) { createPlayer(); handler.post(tick) } }
     override fun onPictureInPictureModeChanged(inPictureInPictureMode: Boolean, newConfig: Configuration) {
         super.onPictureInPictureModeChanged(inPictureInPictureMode,newConfig)
@@ -174,6 +242,6 @@ class PlayerActivity : ComponentActivity() {
     }
     override fun onDestroy() {
         if (::episode.isInitialized) { releasePlayer(); cleanupWatched() }
-        handler.removeCallbacksAndMessages(null); store.close(); super.onDestroy()
+        resolver.shutdownNow();handler.removeCallbacksAndMessages(null); store.close(); super.onDestroy()
     }
 }
