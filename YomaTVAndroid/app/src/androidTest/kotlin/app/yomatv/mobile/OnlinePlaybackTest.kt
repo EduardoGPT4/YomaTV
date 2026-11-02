@@ -92,6 +92,31 @@ class OnlinePlaybackTest {
             try{StreamDataSource(server.url).open(DataSpec(android.net.Uri.parse(server.url)));fail()}catch(_:IllegalArgumentException){}
         }
     }
+    @Test fun liveMp4UploadPlaysAcrossTheReportedStallPosition(){
+        org.junit.Assume.assumeTrue(InstrumentationRegistry.getArguments().getString("online_live")=="true")
+        androidx.work.WorkManager.getInstance(context).cancelAllWork().result.get()
+        Prefs(context).apply{this.owner=this@OnlinePlaybackTest.owner;paused=true;cleanWatched=false}
+        Store(context).use{store->
+            val data=payload(mal=0).put("slug","dark-summoner-to-dekiteiru").put("number","5").put("title","Dark Summoner to Dekiteiru")
+            val ep=store.openOnline(data)
+            val intent=Intent(context,PlayerActivity::class.java).putExtra("owner",owner).putExtra("key",ep.key).putExtra("online",true)
+            ActivityScenario.launch<PlayerActivity>(intent).use{scenario->
+                val field=PlayerActivity::class.java.getDeclaredField("player").apply{isAccessible=true}
+                fun await(seconds:Int, condition:()->Boolean){val deadline=System.currentTimeMillis()+seconds*1000L;while(System.currentTimeMillis()<deadline){if(condition())return;Thread.sleep(200)};assertTrue("Public stream was not ready",condition())}
+                val start=System.nanoTime()
+                await(90){var ready=false;scenario.onActivity{val p=field.get(it)as? ExoPlayer;ready=p?.playbackState==Player.STATE_READY && p.duration>140000};ready}
+                val readyMs=(System.nanoTime()-start)/1e6
+                scenario.onActivity{val p=field.get(it)as ExoPlayer;p.seekTo(125000);p.play()}
+                await(90){var advanced=false;scenario.onActivity{val p=field.get(it)as ExoPlayer;assertNull(p.playerError);advanced=p.currentPosition>=132000 && p.isPlaying};advanced}
+                scenario.onActivity{(field.get(it)as ExoPlayer).pause()}
+                assertFalse(store.get(ep.key,owner,true)!!.watched)
+                val result=JSONObject().put("ok",true).put("episode","dark-summoner-to-dekiteiru/5").put("initial_ready_ms",readyMs)
+                    .put("played_across_130_seconds",true).put("real_mal_write",false).put("physical_phone",false)
+                val file=java.io.File(context.getExternalFilesDir(null),"verification/online-live.json");file.parentFile?.mkdirs();file.writeText(result.toString(2))
+                instrumentation.sendStatus(0,android.os.Bundle().apply{putString("online_live_result",result.toString())})
+            }
+        }
+    }
     private inner class MediaServer : AutoCloseable {
         val socket=ServerSocket(0,10,java.net.InetAddress.getByName("127.0.0.1"))
         val base="http://127.0.0.1:${socket.localPort}/"
